@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SchedulifyX API Tester</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    pre { white-space: pre-wrap; word-wrap: break-word; }
+    .tab-active { border-bottom: 2px solid #667eea; color: #667eea; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  
+  <!-- Header -->
+  <header class="gradient-bg text-white py-6">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+          <i class="fas fa-flask text-2xl"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold">SchedulifyX API Tester</h1>
+          <p class="text-white/80 text-sm">Test all API endpoints including Multi-Tenant integration</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-8">
+    <!-- Configuration -->
+    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+      <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <i class="fas fa-cog text-purple-500"></i>
+        API Configuration
+      </h2>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">API Base URL</label>
+          <input type="text" id="apiBaseUrl" value="https://api.schedulifyx.com"
+            class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+          <p class="text-xs text-gray-500 mt-1">Note: nginx already adds /api/v1 prefix</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">API Key</label>
+          <input type="password" id="apiKey" placeholder="sk_live_..."
+            class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+        </div>
+      </div>
+      <p class="text-xs text-gray-500 mt-3">
+        <i class="fas fa-info-circle"></i> 
+        Your API key is only stored in this browser session and is sent directly to your API.
+      </p>
+    </div>
+
+    <!-- Architecture Diagram -->
+    <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 mb-6 border border-purple-100">
+      <h3 class="font-bold text-gray-900 mb-4">Multi-Tenant Integration Flow</h3>
+      <div class="flex items-center justify-center gap-4 text-sm flex-wrap">
+        <div class="bg-white rounded-lg p-4 shadow-sm text-center min-w-[120px]">
+          <i class="fas fa-user text-2xl text-blue-500 mb-2"></i>
+          <div class="font-medium">Your User</div>
+          <div class="text-xs text-gray-500">Signs up to YOUR app</div>
+        </div>
+        <i class="fas fa-arrow-right text-gray-400"></i>
+        <div class="bg-white rounded-lg p-4 shadow-sm text-center min-w-[120px]">
+          <i class="fas fa-server text-2xl text-green-500 mb-2"></i>
+          <div class="font-medium">Your Backend</div>
+          <div class="text-xs text-gray-500">Stores API key</div>
+        </div>
+        <i class="fas fa-arrow-right text-gray-400"></i>
+        <div class="bg-white rounded-lg p-4 shadow-sm text-center min-w-[120px]">
+          <i class="fas fa-cloud text-2xl text-purple-500 mb-2"></i>
+          <div class="font-medium">SchedulifyX API</div>
+          <div class="text-xs text-gray-500">Creates tenant</div>
+        </div>
+        <i class="fas fa-arrow-right text-gray-400"></i>
+        <div class="bg-white rounded-lg p-4 shadow-sm text-center min-w-[120px]">
+          <i class="fas fa-share-nodes text-2xl text-pink-500 mb-2"></i>
+          <div class="font-medium">Social Platforms</div>
+          <div class="text-xs text-gray-500">User connects accounts</div>
+        </div>
+      </div>
+      <p class="text-xs text-gray-600 mt-4 text-center">
+        <strong>Key:</strong> Your backend calls SchedulifyX API with YOUR API key. Each of your users gets a tenant ID for data isolation.
+      </p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex border-b border-gray-200 mb-6 overflow-x-auto">
+      <button onclick="showTab('tenants')" class="tab-btn px-4 py-3 text-sm font-medium text-gray-600 hover:text-purple-600 whitespace-nowrap tab-active" data-tab="tenants">
+        <i class="fas fa-users-gear mr-2"></i>Tenants
+      </button>
+      <button onclick="showTab('accounts')" class="tab-btn px-4 py-3 text-sm font-medium text-gray-600 hover:text-purple-600 whitespace-nowrap" data-tab="accounts">
+        <i class="fas fa-link mr-2"></i>Accounts
+      </button>
+      <button onclick="showTab('posts')" class="tab-btn px-4 py-3 text-sm font-medium text-gray-600 hover:text-purple-600 whitespace-nowrap" data-tab="posts">
+        <i class="fas fa-paper-plane mr-2"></i>Posts
+      </button>
+      <button onclick="showTab('media')" class="tab-btn px-4 py-3 text-sm font-medium text-gray-600 hover:text-purple-600 whitespace-nowrap" data-tab="media">
+        <i class="fas fa-image mr-2"></i>Media
+      </button>
+      <button onclick="showTab('analytics')" class="tab-btn px-4 py-3 text-sm font-medium text-gray-600 hover:text-purple-600 whitespace-nowrap" data-tab="analytics">
+        <i class="fas fa-chart-line mr-2"></i>Analytics
+      </button>
+      <button onclick="showTab('webhooks')" class="tab-btn px-4 py-3 text-sm font-medium text-gray-600 hover:text-purple-600 whitespace-nowrap" data-tab="webhooks">
+        <i class="fas fa-bell mr-2"></i>Webhooks
+      </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="grid lg:grid-cols-2 gap-6">
+      <!-- Request Panel -->
+      <div class="bg-white rounded-xl shadow-sm p-6">
+        <h3 class="font-bold text-gray-900 mb-4">Request</h3>
+        
+        <!-- Tenants Tab -->
+        <div id="tab-tenants" class="tab-content">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Action</label>
+              <select id="tenantAction" onchange="updateTenantForm()" class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+                <option value="create">Create Tenant</option>
+                <option value="get">Get Tenant</option>
+                <option value="list">List All Tenants</option>
+                <option value="connect">Get Connect URL</option>
+                <option value="accounts">Get Tenant Accounts</option>
+                <option value="delete">Delete Tenant</option>
+              </select>
+            </div>
+            
+            <div id="tenantFields">
+              <div id="field-externalId">
+                <label class="block text-sm font-medium text-gray-700 mb-1">External ID (Your User ID)</label>
+                <input type="text" id="externalId" placeholder="user_123" 
+                  class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+                <p class="text-xs text-gray-500 mt-1">Your internal user ID to map to a tenant</p>
+              </div>
+              
+              <div id="field-tenantId" class="hidden mt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tenant ID</label>
+                <input type="text" id="tenantId" placeholder="tenant_..." 
+                  class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+              </div>
+              
+              <div id="field-platform" class="hidden mt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Platform</label>
+                <select id="platform" class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+                  <option value="instagram">Instagram</option>
+                  <option value="twitter">Twitter/X</option>
+                  <option value="facebook">Facebook</option>
+                  <option value="linkedin">LinkedIn</option>
+                  <option value="tiktok">TikTok</option>
+                  <option value="youtube">YouTube</option>
+                  <option value="pinterest">Pinterest</option>
+                  <option value="threads">Threads</option>
+                  <option value="bluesky">Bluesky</option>
+                </select>
+              </div>
+              
+              <div id="field-redirectUri" class="hidden mt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Redirect URI</label>
+                <input type="text" id="redirectUri" placeholder="https://yourapp.com/callback" 
+                  class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+                <p class="text-xs text-gray-500 mt-1">Where to redirect after OAuth</p>
+              </div>
+              
+              <div id="field-metadata" class="mt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Metadata (JSON)</label>
+                <textarea id="metadata" rows="2" placeholder='{"name": "John", "plan": "pro"}'
+                  class="w-full px-4 py-2 border border-gray-200 rounded-lg font-mono text-sm"></textarea>
+              </div>
+            </div>
+            
+            <button onclick="executeTenantRequest()" class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition">
+              <i class="fas fa-play mr-2"></i>Execute
+            </button>
+          </div>
+        </div>
+
+        <!-- Accounts Tab -->
+        <div id="tab-accounts" class="tab-content hidden">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Action</label>
+              <select id="accountAction" class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+                <option value="list">List My Accounts</option>
+                <option value="get">Get Account by ID</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Tenant ID (optional)</label>
+              <input type="text" id="accountTenantId" placeholder="Leave empty for your own accounts"
+                class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+              <p class="text-xs text-gray-500 mt-1">For multi-tenant: specify which tenant's accounts to fetch</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Account ID (for Get)</label>
+              <input type="text" id="accountId" placeholder="account_..."
+                class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+            </div>
+            <button onclick="executeAccountRequest()" class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition">
+              <i class="fas fa-play mr-2"></i>Execute
+            </button>
+          </div>
+        </div>
+
+        <!-- Posts Tab -->
+        <div id="tab-posts" class="tab-content hidden">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Action</label>
+              <select id="postAction" onchange="updatePostForm()" class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+                <option value="list">List Posts</option>
+                <option value="create">Create Post</option>
+                <option value="get">Get Post by ID</option>
+                <option value="delete">Delete Post</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Tenant ID (optional)</label>
+              <input type="text" id="postTenantId" placeholder="For multi-tenant posts"
+                class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+            </div>
+            <div id="postCreateFields" class="hidden space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                <textarea id="postContent" rows="3" placeholder="Your post content..."
+                  class="w-full px-4 py-2 border border-gray-200 rounded-lg"></textarea>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Account IDs (comma separated)</label>
+                <input type="text" id="postAccountIds" placeholder="account_1, account_2"
+                  class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Media URLs (comma separated)</label>
+                <input type="text" id="postMediaUrls" placeholder="https://..."
+                  class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Schedule For (optional)</label>
+                <input type="datetime-local" id="postSchedule"
+                  class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+              </div>
+            </div>
+            <div id="postIdField" class="hidden">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Post ID</label>
+              <input type="text" id="postId" placeholder="post_..."
+                class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+            </div>
+            <button onclick="executePostRequest()" class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition">
+              <i class="fas fa-play mr-2"></i>Execute
+            </button>
+          </div>
+        </div>
+
+        <!-- Media Tab -->
+        <div id="tab-media" class="tab-content hidden">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Get Upload URL</label>
+              <p class="text-xs text-gray-500 mb-3">Get a presigned S3 URL to upload media files</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">File Name</label>
+              <input type="text" id="mediaFileName" placeholder="image.jpg"
+                class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Content Type</label>
+              <select id="mediaContentType" class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+                <option value="image/jpeg">image/jpeg</option>
+                <option value="image/png">image/png</option>
+                <option value="image/gif">image/gif</option>
+                <option value="video/mp4">video/mp4</option>
+                <option value="video/quicktime">video/quicktime</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">File Size (bytes)</label>
+              <input type="number" id="mediaFileSize" placeholder="1024000"
+                class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+            </div>
+            <button onclick="executeMediaRequest()" class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition">
+              <i class="fas fa-play mr-2"></i>Get Upload URL
+            </button>
+            
+            <div class="border-t pt-4 mt-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Or Upload a File Directly</label>
+              <input type="file" id="mediaFile" accept="image/*,video/*" class="w-full">
+              <button onclick="uploadFile()" class="mt-2 w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition">
+                <i class="fas fa-upload mr-2"></i>Upload File
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="tab-analytics" class="tab-content hidden">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Action</label>
+              <select id="analyticsAction" class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+                <option value="overview">Get Overview</option>
+                <option value="account">Get Account Analytics</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Account ID (for account analytics)</label>
+              <input type="text" id="analyticsAccountId" placeholder="account_..."
+                class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Period</label>
+              <select id="analyticsPeriod" class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+                <option value="7d">Last 7 days</option>
+                <option value="30d">Last 30 days</option>
+                <option value="90d">Last 90 days</option>
+              </select>
+            </div>
+            <button onclick="executeAnalyticsRequest()" class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition">
+              <i class="fas fa-play mr-2"></i>Execute
+            </button>
+          </div>
+        </div>
+
+        <!-- Webhooks Tab -->
+        <div id="tab-webhooks" class="tab-content hidden">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Action</label>
+              <select id="webhookAction" onchange="updateWebhookForm()" class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+                <option value="list">List Webhooks</option>
+                <option value="create">Create Webhook</option>
+                <option value="delete">Delete Webhook</option>
+              </select>
+            </div>
+            <div id="webhookCreateFields" class="hidden space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Webhook URL</label>
+                <input type="url" id="webhookUrl" placeholder="https://yourapp.com/webhook"
+                  class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Events</label>
+                <div class="space-y-2">
+                  <label class="flex items-center gap-2">
+                    <input type="checkbox" value="post.published" class="webhook-event"> post.published
+                  </label>
+                  <label class="flex items-center gap-2">
+                    <input type="checkbox" value="post.failed" class="webhook-event"> post.failed
+                  </label>
+                  <label class="flex items-center gap-2">
+                    <input type="checkbox" value="post.scheduled" class="webhook-event"> post.scheduled
+                  </label>
+                  <label class="flex items-center gap-2">
+                    <input type="checkbox" value="account.connected" class="webhook-event"> account.connected
+                  </label>
+                  <label class="flex items-center gap-2">
+                    <input type="checkbox" value="account.disconnected" class="webhook-event"> account.disconnected
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div id="webhookIdField" class="hidden">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Webhook ID</label>
+              <input type="text" id="webhookId" placeholder="webhook_..."
+                class="w-full px-4 py-2 border border-gray-200 rounded-lg">
+            </div>
+            <button onclick="executeWebhookRequest()" class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition">
+              <i class="fas fa-play mr-2"></i>Execute
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Response Panel -->
+      <div class="bg-white rounded-xl shadow-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold text-gray-900">Response</h3>
+          <div id="responseStatus" class="text-sm"></div>
+        </div>
+        
+        <div id="requestInfo" class="bg-gray-50 rounded-lg p-3 mb-4 text-xs font-mono hidden">
+          <div class="text-gray-500 mb-1">Request:</div>
+          <div id="requestMethod" class="text-purple-600"></div>
+          <div id="requestUrl" class="text-gray-700 break-all"></div>
+          <div id="requestHeaders" class="text-gray-500 mt-2"></div>
+          <div id="requestBody" class="text-gray-700 mt-2"></div>
+        </div>
+        
+        <div id="responseBody" class="bg-gray-900 text-green-400 rounded-lg p-4 font-mono text-sm overflow-auto max-h-[500px]">
+          <span class="text-gray-500">// Response will appear here</span>
+        </div>
+        
+        <button onclick="copyResponse()" class="mt-4 text-sm text-purple-600 hover:text-purple-700">
+          <i class="fas fa-copy mr-1"></i>Copy Response
+        </button>
+      </div>
+    </div>
+
+    <!-- Code Examples -->
+    <div class="bg-white rounded-xl shadow-sm p-6 mt-6">
+      <h3 class="font-bold text-gray-900 mb-4">Integration Example</h3>
+      <p class="text-sm text-gray-600 mb-4">Here's how to integrate SchedulifyX in your backend (Node.js example):</p>
+      <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 text-sm overflow-auto"><code>// Your SaaS Backend - Node.js Example
+const SCHEDULIFY_API_KEY = process.env.SCHEDULIFY_API_KEY;
+// Note: api.schedulifyx.com already includes /api/v1 prefix via nginx
+const SCHEDULIFY_API_URL = 'https://api.schedulifyx.com';
+
+// When your user wants to connect their social accounts
+app.post('/api/connect-social/:platform', async (req, res) => {
+  const userId = req.user.id; // Your authenticated user
+  
+  // 1. Check if user already has a tenant, if not create one
+  let tenantId = await db.getTenantId(userId);
+  
+  if (!tenantId) {
+    // Create tenant for this user
+    const tenant = await fetch(`${SCHEDULIFY_API_URL}/tenants`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SCHEDULIFY_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        externalId: userId,
+        metadata: { email: req.user.email, plan: req.user.plan }
+      }),
+    }).then(r => r.json());
+    
+    tenantId = tenant.id;
+    await db.saveTenantId(userId, tenantId); // Save mapping
+  }
+  
+  // 2. Get OAuth URL for the platform
+  const { authUrl } = await fetch(
+    `${SCHEDULIFY_API_URL}/tenants/${tenantId}/connect/${req.params.platform}`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SCHEDULIFY_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        redirectUri: 'https://yourapp.com/oauth/callback'
+      }),
+    }
+  ).then(r => r.json());
+  
+  // 3. Redirect user to connect their account
+  res.json({ authUrl });
+});
+
+// When your user creates a post
+app.post('/api/posts', async (req, res) => {
+  const tenantId = await db.getTenantId(req.user.id);
+  
+  const post = await fetch(`${SCHEDULIFY_API_URL}/posts`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${SCHEDULIFY_API_KEY}`,
+      'Content-Type': 'application/json',
+      'X-Tenant-ID': tenantId, // Important: Include tenant ID
+    },
+    body: JSON.stringify({
+      content: req.body.content,
+      accountIds: req.body.accountIds,
+      scheduledFor: req.body.scheduledFor,
+    }),
+  }).then(r => r.json());
+  
+  res.json(post);
+});</code></pre>
+    </div>
+  </main>
+
+  <script>
+    // Tab switching
+    function showTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('tab-active'));
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+      document.querySelector(`[data-tab="${tabName}"]`).classList.add('tab-active');
+    }
+
+    // Form updates
+    function updateTenantForm() {
+      const action = document.getElementById('tenantAction').value;
+      const fields = {
+        'create': ['externalId', 'metadata'],
+        'get': ['tenantId'],
+        'list': [],
+        'connect': ['tenantId', 'platform', 'redirectUri'],
+        'accounts': ['tenantId'],
+        'delete': ['tenantId'],
+      };
+      
+      ['externalId', 'tenantId', 'platform', 'redirectUri', 'metadata'].forEach(field => {
+        const el = document.getElementById(`field-${field}`);
+        if (el) {
+          el.classList.toggle('hidden', !fields[action].includes(field));
+        }
+      });
+    }
+
+    function updatePostForm() {
+      const action = document.getElementById('postAction').value;
+      document.getElementById('postCreateFields').classList.toggle('hidden', action !== 'create');
+      document.getElementById('postIdField').classList.toggle('hidden', !['get', 'delete'].includes(action));
+    }
+
+    function updateWebhookForm() {
+      const action = document.getElementById('webhookAction').value;
+      document.getElementById('webhookCreateFields').classList.toggle('hidden', action !== 'create');
+      document.getElementById('webhookIdField').classList.toggle('hidden', action !== 'delete');
+    }
+
+    // API call helper
+    async function apiCall(method, endpoint, body = null, tenantId = null) {
+      const baseUrl = document.getElementById('apiBaseUrl').value;
+      const apiKey = document.getElementById('apiKey').value;
+      
+      if (!apiKey) {
+        throw new Error('Please enter your API key');
+      }
+      
+      const headers = {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      };
+      
+      if (tenantId) {
+        headers['X-Tenant-ID'] = tenantId;
+      }
+      
+      // Show request info
+      document.getElementById('requestInfo').classList.remove('hidden');
+      document.getElementById('requestMethod').textContent = method;
+      document.getElementById('requestUrl').textContent = `${baseUrl}${endpoint}`;
+      document.getElementById('requestHeaders').textContent = `Headers: Authorization: Bearer sk_***, Content-Type: application/json${tenantId ? `, X-Tenant-ID: ${tenantId}` : ''}`;
+      document.getElementById('requestBody').textContent = body ? `Body: ${JSON.stringify(body, null, 2)}` : '';
+      
+      const options = { method, headers };
+      if (body) {
+        options.body = JSON.stringify(body);
+      }
+      
+      const response = await fetch(`${baseUrl}${endpoint}`, options);
+      const data = await response.json();
+      
+      return { status: response.status, ok: response.ok, data };
+    }
+
+    function showResponse(result) {
+      const statusEl = document.getElementById('responseStatus');
+      const bodyEl = document.getElementById('responseBody');
+      
+      if (result.ok) {
+        statusEl.innerHTML = `<span class="text-green-600"><i class="fas fa-check-circle mr-1"></i>${result.status} OK</span>`;
+      } else {
+        statusEl.innerHTML = `<span class="text-red-600"><i class="fas fa-times-circle mr-1"></i>${result.status} Error</span>`;
+      }
+      
+      bodyEl.textContent = JSON.stringify(result.data, null, 2);
+    }
+
+    function showError(error) {
+      document.getElementById('responseStatus').innerHTML = `<span class="text-red-600"><i class="fas fa-times-circle mr-1"></i>Error</span>`;
+      document.getElementById('responseBody').textContent = error.message;
+    }
+
+    // Execute requests
+    async function executeTenantRequest() {
+      try {
+        const action = document.getElementById('tenantAction').value;
+        let result;
+        
+        switch (action) {
+          case 'create':
+            const externalId = document.getElementById('externalId').value;
+            let metadata = {};
+            try {
+              const metaStr = document.getElementById('metadata').value;
+              if (metaStr) metadata = JSON.parse(metaStr);
+            } catch (e) {}
+            result = await apiCall('POST', '/tenants', { externalId, metadata });
+            break;
+            
+          case 'get':
+            result = await apiCall('GET', `/tenants/${document.getElementById('tenantId').value}`);
+            break;
+            
+          case 'list':
+            result = await apiCall('GET', '/tenants');
+            break;
+            
+          case 'connect':
+            const tenantId = document.getElementById('tenantId').value;
+            const platform = document.getElementById('platform').value;
+            const redirectUri = document.getElementById('redirectUri').value || window.location.href;
+            result = await apiCall('POST', `/tenants/${tenantId}/connect/${platform}`, { redirectUri });
+            break;
+            
+          case 'accounts':
+            result = await apiCall('GET', `/tenants/${document.getElementById('tenantId').value}/accounts`);
+            break;
+            
+          case 'delete':
+            result = await apiCall('DELETE', `/tenants/${document.getElementById('tenantId').value}`);
+            break;
+        }
+        
+        showResponse(result);
+      } catch (error) {
+        showError(error);
+      }
+    }
+
+    async function executeAccountRequest() {
+      try {
+        const action = document.getElementById('accountAction').value;
+        const tenantId = document.getElementById('accountTenantId').value || null;
+        let result;
+        
+        if (action === 'list') {
+          result = await apiCall('GET', '/accounts', null, tenantId);
+        } else {
+          const accountId = document.getElementById('accountId').value;
+          result = await apiCall('GET', `/accounts/${accountId}`, null, tenantId);
+        }
+        
+        showResponse(result);
+      } catch (error) {
+        showError(error);
+      }
+    }
+
+    async function executePostRequest() {
+      try {
+        const action = document.getElementById('postAction').value;
+        const tenantId = document.getElementById('postTenantId').value || null;
+        let result;
+        
+        switch (action) {
+          case 'list':
+            result = await apiCall('GET', '/posts', null, tenantId);
+            break;
+            
+          case 'create':
+            const content = document.getElementById('postContent').value;
+            const accountIds = document.getElementById('postAccountIds').value.split(',').map(s => s.trim()).filter(Boolean);
+            const mediaUrls = document.getElementById('postMediaUrls').value.split(',').map(s => s.trim()).filter(Boolean);
+            const scheduledFor = document.getElementById('postSchedule').value ? new Date(document.getElementById('postSchedule').value).toISOString() : null;
+            
+            const body = { content, accountIds };
+            if (mediaUrls.length) body.mediaUrls = mediaUrls;
+            if (scheduledFor) body.scheduledFor = scheduledFor;
+            
+            result = await apiCall('POST', '/posts', body, tenantId);
+            break;
+            
+          case 'get':
+            result = await apiCall('GET', `/posts/${document.getElementById('postId').value}`, null, tenantId);
+            break;
+            
+          case 'delete':
+            result = await apiCall('DELETE', `/posts/${document.getElementById('postId').value}`, null, tenantId);
+            break;
+        }
+        
+        showResponse(result);
+      } catch (error) {
+        showError(error);
+      }
+    }
+
+    async function executeMediaRequest() {
+      try {
+        const fileName = document.getElementById('mediaFileName').value;
+        const contentType = document.getElementById('mediaContentType').value;
+        const fileSize = parseInt(document.getElementById('mediaFileSize').value) || 0;
+        
+        const result = await apiCall('POST', '/media/upload-url', { fileName, contentType, fileSize });
+        showResponse(result);
+      } catch (error) {
+        showError(error);
+      }
+    }
+
+    async function uploadFile() {
+      const fileInput = document.getElementById('mediaFile');
+      if (!fileInput.files.length) {
+        showError({ message: 'Please select a file' });
+        return;
+      }
+      
+      const file = fileInput.files[0];
+      
+      try {
+        // Get upload URL
+        const urlResult = await apiCall('POST', '/media/upload-url', {
+          fileName: file.name,
+          contentType: file.type,
+          fileSize: file.size,
+        });
+        
+        if (!urlResult.ok) {
+          showResponse(urlResult);
+          return;
+        }
+        
+        // Upload to S3
+        const uploadResponse = await fetch(urlResult.data.uploadUrl, {
+          method: 'PUT',
+          body: file,
+          headers: { 'Content-Type': file.type },
+        });
+        
+        if (uploadResponse.ok) {
+          showResponse({
+            ok: true,
+            status: 200,
+            data: {
+              message: 'File uploaded successfully!',
+              fileUrl: urlResult.data.fileUrl,
+            }
+          });
+        } else {
+          showError({ message: 'Failed to upload file to S3' });
+        }
+      } catch (error) {
+        showError(error);
+      }
+    }
+
+    async function executeAnalyticsRequest() {
+      try {
+        const action = document.getElementById('analyticsAction').value;
+        const period = document.getElementById('analyticsPeriod').value;
+        let result;
+        
+        if (action === 'overview') {
+          result = await apiCall('GET', `/analytics/overview?period=${period}`);
+        } else {
+          const accountId = document.getElementById('analyticsAccountId').value;
+          result = await apiCall('GET', `/analytics/accounts/${accountId}?period=${period}`);
+        }
+        
+        showResponse(result);
+      } catch (error) {
+        showError(error);
+      }
+    }
+
+    async function executeWebhookRequest() {
+      try {
+        const action = document.getElementById('webhookAction').value;
+        let result;
+        
+        switch (action) {
+          case 'list':
+            result = await apiCall('GET', '/webhooks');
+            break;
+            
+          case 'create':
+            const url = document.getElementById('webhookUrl').value;
+            const events = Array.from(document.querySelectorAll('.webhook-event:checked')).map(el => el.value);
+            result = await apiCall('POST', '/webhooks', { url, events });
+            break;
+            
+          case 'delete':
+            result = await apiCall('DELETE', `/webhooks/${document.getElementById('webhookId').value}`);
+            break;
+        }
+        
+        showResponse(result);
+      } catch (error) {
+        showError(error);
+      }
+    }
+
+    function copyResponse() {
+      const text = document.getElementById('responseBody').textContent;
+      navigator.clipboard.writeText(text);
+    }
+
+    // Initialize
+    updateTenantForm();
+  </script>
+</body>
+</html>
