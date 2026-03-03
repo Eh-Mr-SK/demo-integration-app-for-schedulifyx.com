@@ -3,1173 +3,618 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ContentFlow - AI Content Scheduler</title>
+  <title>ContentFlow — SchedulifyX Integration Demo</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://components.schedulifyx.com/sdk.js"></script>
   <style>
-    .gradient-bg { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); }
-    .card-shadow { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-    .platform-btn:hover { transform: translateY(-2px); }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .spinner { border: 3px solid #e5e7eb; border-top-color: #2563eb; border-radius: 50%; width: 32px; height: 32px; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .fade-in { animation: fadeIn .25s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    #embed-container iframe { width: 100%; min-height: 520px; border: none; border-radius: 8px; }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
-  <div id="app"></div>
 
+  <!-- ==================== AUTH SCREEN ==================== -->
+  <div id="auth-screen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 px-4">
+    <div class="w-full max-w-md">
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center gap-2 mb-2">
+          <svg class="w-9 h-9 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span class="text-2xl font-bold text-white tracking-tight">ContentFlow</span>
+        </div>
+        <p class="text-gray-400 text-sm">SchedulifyX Secure Embed Demo</p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <!-- Tabs -->
+        <div class="flex border-b border-gray-200">
+          <button onclick="showAuthTab('login')" id="tab-login" class="flex-1 py-3.5 text-sm font-semibold text-center transition auth-tab-btn text-blue-600 border-b-2 border-blue-600">Log In</button>
+          <button onclick="showAuthTab('signup')" id="tab-signup" class="flex-1 py-3.5 text-sm font-semibold text-center transition auth-tab-btn text-gray-400 hover:text-gray-600">Sign Up</button>
+        </div>
+
+        <form id="auth-form" class="p-6 space-y-4" onsubmit="handleAuth(event)">
+          <div id="field-name" class="hidden">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+            <input id="input-name" type="text" placeholder="Jane Doe" class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"/>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input id="input-email" type="email" placeholder="you@company.com" required class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"/>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <input id="input-password" type="password" placeholder="••••••••" required minlength="6" class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"/>
+          </div>
+          <div id="auth-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2"></div>
+          <button type="submit" id="auth-submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">Log In</button>
+        </form>
+      </div>
+
+      <p class="text-center text-gray-500 text-xs mt-6">Demo app &mdash; powered by <a href="https://schedulifyx.com" target="_blank" class="text-blue-400 hover:underline">SchedulifyX</a></p>
+    </div>
+  </div>
+
+  <!-- ==================== DASHBOARD ==================== -->
+  <div id="dashboard" class="hidden min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gray-900 text-white flex flex-col flex-shrink-0 min-h-screen">
+      <div class="px-5 py-5 border-b border-gray-800">
+        <div class="flex items-center gap-2">
+          <svg class="w-7 h-7 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span class="text-lg font-bold tracking-tight">ContentFlow</span>
+        </div>
+        <p class="text-gray-500 text-xs mt-1">Secure Embed Demo</p>
+      </div>
+
+      <nav class="flex-1 px-3 py-4 space-y-1" id="sidebar-nav">
+        <button onclick="switchTab('post-creator')" data-tab="post-creator" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-gray-300 hover:bg-gray-800 hover:text-white">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          Post Creator
+        </button>
+        <button onclick="switchTab('inbox')" data-tab="inbox" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-gray-300 hover:bg-gray-800 hover:text-white">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+          Inbox
+        </button>
+        <button onclick="switchTab('comments')" data-tab="comments" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-gray-300 hover:bg-gray-800 hover:text-white">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>
+          Comments
+        </button>
+        <button onclick="switchTab('mentions')" data-tab="mentions" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-gray-300 hover:bg-gray-800 hover:text-white">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/></svg>
+          Mentions
+        </button>
+        <button onclick="switchTab('accounts')" data-tab="accounts" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-gray-300 hover:bg-gray-800 hover:text-white">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Accounts
+        </button>
+        <button onclick="switchTab('analytics')" data-tab="analytics" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-gray-300 hover:bg-gray-800 hover:text-white">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          Analytics
+        </button>
+
+        <div class="pt-4 mt-4 border-t border-gray-800">
+          <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Manage</p>
+          <button onclick="switchTab('connect')" data-tab="connect" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-gray-300 hover:bg-gray-800 hover:text-white">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+            Connect Account
+          </button>
+        </div>
+      </nav>
+
+      <!-- User info -->
+      <div class="px-5 py-4 border-t border-gray-800">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-sm font-semibold flex-shrink-0" id="user-avatar">?</div>
+            <div class="min-w-0">
+              <p class="text-sm font-medium truncate" id="user-name">User</p>
+              <p class="text-xs text-gray-500 truncate" id="user-email">user@email.com</p>
+            </div>
+          </div>
+          <button onclick="logout()" class="text-gray-500 hover:text-white transition" title="Logout">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-h-screen overflow-hidden">
+      <!-- Top bar -->
+      <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
+        <div>
+          <h1 class="text-lg font-semibold text-gray-900" id="page-title">Post Creator</h1>
+          <p class="text-sm text-gray-500" id="page-subtitle">Create and schedule social media posts</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" id="token-status">
+            <span class="w-2 h-2 rounded-full bg-gray-300"></span>
+            <span>Initializing…</span>
+          </span>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <div class="flex-1 overflow-auto p-6">
+        <!-- Loading state -->
+        <div id="content-loading" class="flex flex-col items-center justify-center h-full">
+          <div class="spinner mb-4"></div>
+          <p class="text-gray-500 text-sm">Loading component…</p>
+        </div>
+
+        <!-- Error state -->
+        <div id="content-error" class="hidden flex flex-col items-center justify-center h-full">
+          <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-4">
+            <svg class="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+          </div>
+          <p class="text-gray-800 font-medium mb-1">Failed to load component</p>
+          <p class="text-gray-500 text-sm mb-4" id="error-message">Something went wrong.</p>
+          <button onclick="retryLoad()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition">Retry</button>
+        </div>
+
+        <!-- Embed container (for SDK components) -->
+        <div id="embed-container" class="hidden h-full fade-in"></div>
+
+        <!-- Connect Account panel -->
+        <div id="connect-panel" class="hidden fade-in">
+          <div class="max-w-2xl mx-auto">
+            <h2 class="text-lg font-semibold text-gray-900 mb-1">Connect a Social Account</h2>
+            <p class="text-sm text-gray-500 mb-6">Link your social media accounts to start publishing through SchedulifyX.</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="platform-grid">
+              <!-- OAuth platforms -->
+              <button onclick="connectOAuth('facebook')" class="platform-btn flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:border-blue-300 hover:shadow-sm transition">
+                <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg">f</div>
+                <div class="text-left"><p class="text-sm font-semibold text-gray-900">Facebook</p><p class="text-xs text-gray-500">Pages & Groups</p></div>
+              </button>
+              <button onclick="connectOAuth('instagram')" class="platform-btn flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:border-pink-300 hover:shadow-sm transition">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center text-white font-bold text-lg">I</div>
+                <div class="text-left"><p class="text-sm font-semibold text-gray-900">Instagram</p><p class="text-xs text-gray-500">Business & Creator</p></div>
+              </button>
+              <button onclick="connectOAuth('twitter')" class="platform-btn flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:border-gray-400 hover:shadow-sm transition">
+                <div class="w-10 h-10 rounded-lg bg-black flex items-center justify-center text-white font-bold text-lg">𝕏</div>
+                <div class="text-left"><p class="text-sm font-semibold text-gray-900">X (Twitter)</p><p class="text-xs text-gray-500">Post & Engage</p></div>
+              </button>
+              <button onclick="connectOAuth('linkedin')" class="platform-btn flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:border-blue-300 hover:shadow-sm transition">
+                <div class="w-10 h-10 rounded-lg bg-blue-700 flex items-center justify-center text-white font-bold text-lg">in</div>
+                <div class="text-left"><p class="text-sm font-semibold text-gray-900">LinkedIn</p><p class="text-xs text-gray-500">Profile & Pages</p></div>
+              </button>
+              <button onclick="connectOAuth('tiktok')" class="platform-btn flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:border-gray-400 hover:shadow-sm transition">
+                <div class="w-10 h-10 rounded-lg bg-black flex items-center justify-center text-white font-bold text-lg">♪</div>
+                <div class="text-left"><p class="text-sm font-semibold text-gray-900">TikTok</p><p class="text-xs text-gray-500">Video Publishing</p></div>
+              </button>
+              <button onclick="connectOAuth('pinterest')" class="platform-btn flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:border-red-300 hover:shadow-sm transition">
+                <div class="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center text-white font-bold text-lg">P</div>
+                <div class="text-left"><p class="text-sm font-semibold text-gray-900">Pinterest</p><p class="text-xs text-gray-500">Pins & Boards</p></div>
+              </button>
+              <button onclick="connectOAuth('youtube')" class="platform-btn flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:border-red-300 hover:shadow-sm transition">
+                <div class="w-10 h-10 rounded-lg bg-red-500 flex items-center justify-center text-white font-bold text-lg">▶</div>
+                <div class="text-left"><p class="text-sm font-semibold text-gray-900">YouTube</p><p class="text-xs text-gray-500">Videos & Shorts</p></div>
+              </button>
+              <button onclick="showBlueskyForm()" class="platform-btn flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:border-sky-300 hover:shadow-sm transition">
+                <div class="w-10 h-10 rounded-lg bg-sky-500 flex items-center justify-center text-white font-bold text-lg">☁</div>
+                <div class="text-left"><p class="text-sm font-semibold text-gray-900">Bluesky</p><p class="text-xs text-gray-500">AT Protocol</p></div>
+              </button>
+              <button onclick="showMastodonForm()" class="platform-btn flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:border-purple-300 hover:shadow-sm transition">
+                <div class="w-10 h-10 rounded-lg bg-purple-600 flex items-center justify-center text-white font-bold text-lg">M</div>
+                <div class="text-left"><p class="text-sm font-semibold text-gray-900">Mastodon</p><p class="text-xs text-gray-500">Fediverse</p></div>
+              </button>
+            </div>
+
+            <!-- Bluesky inline form -->
+            <div id="bluesky-form" class="hidden mt-6 bg-white border border-sky-200 rounded-xl p-5 fade-in">
+              <h3 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <div class="w-6 h-6 rounded bg-sky-500 flex items-center justify-center text-white text-xs font-bold">☁</div>
+                Connect Bluesky
+              </h3>
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Handle / DID</label>
+                  <input id="bsky-identifier" type="text" placeholder="you.bsky.social" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none"/>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">App Password</label>
+                  <input id="bsky-password" type="password" placeholder="xxxx-xxxx-xxxx-xxxx" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none"/>
+                </div>
+                <div class="flex gap-2">
+                  <button onclick="connectBluesky()" class="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white text-sm font-medium rounded-lg transition">Connect</button>
+                  <button onclick="hideConnectForms()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition">Cancel</button>
+                </div>
+              </div>
+              <div id="bsky-status" class="hidden mt-3 text-sm rounded-lg px-3 py-2"></div>
+            </div>
+
+            <!-- Mastodon inline form -->
+            <div id="mastodon-form" class="hidden mt-6 bg-white border border-purple-200 rounded-xl p-5 fade-in">
+              <h3 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <div class="w-6 h-6 rounded bg-purple-600 flex items-center justify-center text-white text-xs font-bold">M</div>
+                Connect Mastodon
+              </h3>
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Instance URL</label>
+                  <input id="masto-instance" type="url" placeholder="https://mastodon.social" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"/>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Access Token</label>
+                  <input id="masto-token" type="password" placeholder="Your access token" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"/>
+                </div>
+                <div class="flex gap-2">
+                  <button onclick="connectMastodon()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition">Connect</button>
+                  <button onclick="hideConnectForms()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition">Cancel</button>
+                </div>
+              </div>
+              <div id="masto-status" class="hidden mt-3 text-sm rounded-lg px-3 py-2"></div>
+            </div>
+
+            <!-- Connect status -->
+            <div id="connect-status" class="hidden mt-4 text-sm rounded-lg px-4 py-3"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ==================== SCRIPTS ==================== -->
   <script>
-    const API_URL = 'http://localhost:3001/api';
-    
-    // =============================================
-    // STATE
-    // =============================================
-    let state = {
-      user: null,
-      token: localStorage.getItem('token'),
-      accounts: [],
-      posts: [],
-      view: 'loading',
-      error: null,
-      success: null,
-      selectedMedia: [], // Array of { file, preview, uploading, url }
-      pinterestBoards: {}, // { accountId: [{ id, name }] }
-      selectedPinterestBoard: null, // { accountId, boardId, boardName }
-      // TikTok settings (required by TikTok API)
-      tiktokSettings: {
-        privacyLevel: '', // Required: PUBLIC_TO_EVERYONE, MUTUAL_FOLLOW_FRIENDS, FOLLOWER_OF_CREATOR, SELF_ONLY
-        allowComment: true,
-        allowDuet: false,
-        allowStitch: false,
-        isCommercialContent: false,
-        isYourBrand: false,
-        isBrandedContent: false,
-      },
-      selectedAccounts: [], // Track which accounts are selected (for Pinterest board visibility)
+    /* ─── State ─── */
+    let authMode = 'login';
+    let currentUser = null;
+    let clientToken = null;
+    let clientTokenExpiresAt = null;
+    let sfxInstance = null;
+    let activeWidget = null;
+    let activeTab = 'post-creator';
+    let refreshTimer = null;
+
+    const EMBED_COMPONENTS = ['post-creator', 'inbox', 'comments', 'mentions', 'accounts', 'analytics'];
+    const TAB_META = {
+      'post-creator': { title: 'Post Creator', subtitle: 'Create and schedule social media posts' },
+      'inbox':        { title: 'Inbox', subtitle: 'Manage incoming messages across platforms' },
+      'comments':     { title: 'Comments', subtitle: 'View and reply to comments on your posts' },
+      'mentions':     { title: 'Mentions', subtitle: 'Track brand mentions across social media' },
+      'accounts':     { title: 'Accounts', subtitle: 'Manage connected social media accounts' },
+      'analytics':    { title: 'Analytics', subtitle: 'Performance insights and reporting' },
+      'connect':      { title: 'Connect Account', subtitle: 'Link a new social media platform' },
     };
 
-    // =============================================
-    // API CALLS
-    // =============================================
-    async function api(method, endpoint, body = null) {
-      const headers = { 'Content-Type': 'application/json' };
-      if (state.token) {
-        headers['Authorization'] = `Bearer ${state.token}`;
-      }
-      
-      const options = { method, headers };
-      if (body) options.body = JSON.stringify(body);
-      
-      const response = await fetch(`${API_URL}${endpoint}`, options);
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Request failed');
-      }
-      
+    /* ─── Helpers ─── */
+    function getToken() { return localStorage.getItem('token'); }
+    function setToken(t) { localStorage.setItem('token', t); }
+    function clearToken() { localStorage.removeItem('token'); }
+
+    async function apiFetch(method, path, body) {
+      const opts = { method, headers: { 'Content-Type': 'application/json' } };
+      const token = getToken();
+      if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+      if (body) opts.body = JSON.stringify(body);
+      const res = await fetch(path, opts);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Request failed');
       return data;
     }
 
-    // =============================================
-    // AUTH FUNCTIONS
-    // =============================================
-    async function login(email, password) {
-      state.error = null;
-      try {
-        const data = await api('POST', '/auth/login', { email, password });
-        state.token = data.token;
-        state.user = data.user;
-        localStorage.setItem('token', data.token);
-        state.view = 'dashboard';
-        await loadDashboardData();
-        render();
-      } catch (error) {
-        state.error = error.message;
-        render();
-      }
+    /* ─── Auth ─── */
+    function showAuthTab(mode) {
+      authMode = mode;
+      document.getElementById('tab-login').className = 'flex-1 py-3.5 text-sm font-semibold text-center transition auth-tab-btn ' + (mode === 'login' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-400 hover:text-gray-600');
+      document.getElementById('tab-signup').className = 'flex-1 py-3.5 text-sm font-semibold text-center transition auth-tab-btn ' + (mode === 'signup' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-400 hover:text-gray-600');
+      document.getElementById('field-name').classList.toggle('hidden', mode === 'login');
+      document.getElementById('auth-submit').textContent = mode === 'login' ? 'Log In' : 'Create Account';
+      document.getElementById('auth-error').classList.add('hidden');
     }
 
-    async function signup(name, email, password) {
-      state.error = null;
+    async function handleAuth(e) {
+      e.preventDefault();
+      const btn = document.getElementById('auth-submit');
+      const errEl = document.getElementById('auth-error');
+      errEl.classList.add('hidden');
+      btn.disabled = true;
+      btn.textContent = authMode === 'login' ? 'Logging in…' : 'Creating account…';
+
       try {
-        const data = await api('POST', '/auth/signup', { name, email, password });
-        state.token = data.token;
-        state.user = data.user;
-        localStorage.setItem('token', data.token);
-        state.view = 'dashboard';
-        state.success = 'Account created! Connect your social accounts to get started.';
-        render();
-      } catch (error) {
-        state.error = error.message;
-        render();
+        const email = document.getElementById('input-email').value;
+        const password = document.getElementById('input-password').value;
+        const body = { email, password };
+        if (authMode === 'signup') body.name = document.getElementById('input-name').value;
+        const endpoint = authMode === 'login' ? '/api/auth/login' : '/api/auth/signup';
+        const data = await apiFetch('POST', endpoint, body);
+        setToken(data.token);
+        currentUser = data.user;
+        showDashboard();
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = authMode === 'login' ? 'Log In' : 'Create Account';
       }
     }
 
     function logout() {
-      state.token = null;
-      state.user = null;
-      state.accounts = [];
-      state.posts = [];
-      localStorage.removeItem('token');
-      state.view = 'login';
-      render();
+      clearToken();
+      destroySDK();
+      if (refreshTimer) clearInterval(refreshTimer);
+      currentUser = null;
+      clientToken = null;
+      document.getElementById('dashboard').classList.add('hidden');
+      document.getElementById('auth-screen').classList.remove('hidden');
+      document.getElementById('auth-form').reset();
     }
 
-    async function checkAuth() {
-      if (!state.token) {
-        state.view = 'login';
-        render();
-        return;
+    /* ─── Dashboard Init ─── */
+    async function showDashboard() {
+      document.getElementById('auth-screen').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      document.getElementById('dashboard').classList.add('flex');
+
+      if (currentUser) {
+        document.getElementById('user-name').textContent = currentUser.name || currentUser.email;
+        document.getElementById('user-email').textContent = currentUser.email;
+        document.getElementById('user-avatar').textContent = (currentUser.name || currentUser.email).charAt(0).toUpperCase();
       }
-      
-      try {
-        const data = await api('GET', '/auth/me');
-        state.user = data.user;
-        state.view = 'dashboard';
-        await loadDashboardData();
-        render();
-      } catch (error) {
-        state.token = null;
-        localStorage.removeItem('token');
-        state.view = 'login';
-        render();
-      }
+
+      await fetchClientToken();
+      switchTab('post-creator');
+      startTokenRefresh();
     }
 
-    // =============================================
-    // DASHBOARD DATA
-    // =============================================
-    async function loadDashboardData() {
+    /* ─── Client Token ─── */
+    async function fetchClientToken() {
+      updateTokenStatus('loading', 'Fetching token…');
       try {
-        const [accountsData, postsData] = await Promise.all([
-          api('GET', '/accounts'),
-          api('GET', '/posts'),
-        ]);
-        state.accounts = accountsData.accounts || [];
-        state.posts = postsData.posts || [];
-      } catch (error) {
-        console.error('Failed to load data:', error);
-      }
-    }
-
-    async function connectPlatform(platform) {
-      try {
-        const data = await api('POST', `/accounts/connect/${platform}`, {
-          redirectUri: window.location.origin + '/callback'
-        });
-        // Redirect to OAuth
-        window.location.href = data.authUrl;
-      } catch (error) {
-        state.error = error.message;
-        render();
-      }
-    }
-
-    // =============================================
-    // CREDENTIAL-BASED PLATFORMS (Bluesky, Mastodon)
-    // =============================================
-    
-    function showCredentialModal(platform) {
-      state.credentialModal = { platform, loading: false, error: null };
-      render();
-    }
-    
-    function hideCredentialModal() {
-      state.credentialModal = null;
-      render();
-    }
-    
-    async function connectBluesky(identifier, appPassword) {
-      state.credentialModal.loading = true;
-      state.credentialModal.error = null;
-      render();
-      
-      try {
-        const data = await api('POST', '/accounts/connect/bluesky', {
-          identifier,
-          appPassword
-        });
-        state.credentialModal = null;
-        state.success = `Connected Bluesky account: @${data.account.accountUsername}`;
-        await loadDashboardData();
-        render();
-      } catch (error) {
-        state.credentialModal.error = error.message;
-        state.credentialModal.loading = false;
-        render();
-      }
-    }
-    
-    async function connectMastodon(instanceUrl, accessToken) {
-      state.credentialModal.loading = true;
-      state.credentialModal.error = null;
-      render();
-      
-      try {
-        const data = await api('POST', '/accounts/connect/mastodon', {
-          instanceUrl,
-          accessToken
-        });
-        state.credentialModal = null;
-        state.success = `Connected Mastodon account: @${data.account.accountUsername}`;
-        await loadDashboardData();
-        render();
-      } catch (error) {
-        state.credentialModal.error = error.message;
-        state.credentialModal.loading = false;
-        render();
-      }
-    }
-
-    async function disconnectAccount(accountId) {
-      if (!confirm('Disconnect this account?')) return;
-      try {
-        await api('DELETE', `/accounts/${accountId}`);
-        state.accounts = state.accounts.filter(a => a.id !== accountId);
-        state.success = 'Account disconnected';
-        render();
-      } catch (error) {
-        state.error = error.message;
-        render();
-      }
-    }
-
-    // =============================================
-    // PINTEREST BOARDS
-    // =============================================
-    async function loadPinterestBoards(accountId) {
-      if (state.pinterestBoards[accountId]) return; // Already loaded
-      
-      try {
-        const data = await api('GET', `/accounts/${accountId}/boards`);
-        state.pinterestBoards[accountId] = data.boards || [];
-        render();
-      } catch (error) {
-        console.error('Failed to load Pinterest boards:', error);
-      }
-    }
-    
-    function selectPinterestBoard(accountId, boardId, boardName) {
-      state.selectedPinterestBoard = { accountId, boardId, boardName };
-      render();
-    }
-    
-    // Toggle account selection and load boards if Pinterest
-    function toggleAccountSelection(accountId, platform, isChecked) {
-      if (isChecked) {
-        if (!state.selectedAccounts.includes(accountId)) {
-          state.selectedAccounts.push(accountId);
-        }
-        if (platform === 'pinterest') {
-          loadPinterestBoards(accountId);
-        }
-      } else {
-        state.selectedAccounts = state.selectedAccounts.filter(id => id !== accountId);
-        // Clear Pinterest board selection if Pinterest is deselected
-        if (platform === 'pinterest' && state.selectedPinterestBoard?.accountId === accountId) {
-          state.selectedPinterestBoard = null;
-        }
-      }
-      render();
-    }
-
-    // =============================================
-    // MEDIA UPLOAD
-    // =============================================
-    async function handleMediaSelect(event) {
-      const files = Array.from(event.target.files);
-      const maxFiles = 4;
-      
-      if (state.selectedMedia.length + files.length > maxFiles) {
-        state.error = `Maximum ${maxFiles} media files allowed`;
-        render();
-        return;
-      }
-      
-      for (const file of files) {
-        // Validate file type (images and videos)
-        const isImage = file.type.startsWith('image/');
-        const isVideo = file.type.startsWith('video/');
-        if (!isImage && !isVideo) {
-          state.error = 'Only images and videos are supported';
-          render();
-          return;
-        }
-        
-        // Validate file size (10MB for images, 200MB for videos via catbox)
-        const maxSize = isVideo ? 200 * 1024 * 1024 : 10 * 1024 * 1024;
-        if (file.size > maxSize) {
-          state.error = isVideo ? 'Video size must be less than 200MB' : 'Image size must be less than 10MB';
-          render();
-          return;
-        }
-        
-        // Create preview
-        const preview = URL.createObjectURL(file);
-        state.selectedMedia.push({ file, preview, uploading: false, url: null });
-      }
-      
-      render();
-    }
-    
-    function removeMedia(index) {
-      URL.revokeObjectURL(state.selectedMedia[index].preview);
-      state.selectedMedia.splice(index, 1);
-      render();
-    }
-    
-    async function uploadAllMedia() {
-      const results = [];
-      
-      for (let i = 0; i < state.selectedMedia.length; i++) {
-        const media = state.selectedMedia[i];
-        if (media.url) {
-          results.push(media.url);
-          continue;
-        }
-        
-        media.uploading = true;
-        render();
-        
-        try {
-          // Upload via our backend (uses free hosting)
-          const formData = new FormData();
-          formData.append('file', media.file);
-          
-          const response = await fetch(`${API_URL}/media/upload`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${state.token}`
-            },
-            body: formData
-          });
-          
-          if (!response.ok) {
-            throw new Error('Upload failed');
-          }
-          
-          const data = await response.json();
-          media.url = data.url;
-          results.push(data.url);
-        } catch (error) {
-          console.error('Upload failed:', error);
-          throw new Error(`Failed to upload ${media.file.name}`);
-        } finally {
-          media.uploading = false;
-        }
-      }
-      
-      return results;
-    }
-
-    async function createPost(content, accountIds, scheduledFor) {
-      try {
-        const postData = { content, accountIds };
-        
-        // Upload media first if any
-        if (state.selectedMedia.length > 0) {
-          const mediaUrls = await uploadAllMedia();
-          if (mediaUrls.length > 0) {
-            postData.mediaUrls = mediaUrls;
-          }
-        }
-        
-        // Add Pinterest board if selected
-        if (state.selectedPinterestBoard && state.selectedPinterestBoard.boardId) {
-          postData.pinterestBoardId = state.selectedPinterestBoard.boardId;
-          postData.pinterestBoardName = state.selectedPinterestBoard.boardName;
-        }
-        
-        // Add TikTok settings if a TikTok account is selected
-        const hasTikTok = accountIds.some(id => {
-          const account = state.accounts.find(a => a.id === id);
-          return account && account.platform === 'tiktok';
-        });
-        if (hasTikTok && state.tiktokSettings) {
-          postData.tiktokSettings = state.tiktokSettings;
-        }
-        
-        if (scheduledFor) postData.scheduledFor = scheduledFor;
-        
-        const post = await api('POST', '/posts', postData);
-        state.posts.unshift(post.data || post);
-        state.success = scheduledFor ? 'Post scheduled!' : 'Post published!';
-        
-        // Clear selected media
-        state.selectedMedia.forEach(m => URL.revokeObjectURL(m.preview));
-        state.selectedMedia = [];
-        
-        render();
-        
-        // Refresh posts list after a short delay to get updated status
-        setTimeout(async () => {
-          await loadDashboardData();
-          render();
-        }, 2000);
-        
+        const data = await apiFetch('POST', '/api/client-token', { components: EMBED_COMPONENTS });
+        clientToken = data.clientToken;
+        clientTokenExpiresAt = new Date(data.expiresAt).getTime();
+        initSDK();
+        updateTokenStatus('ok', 'Connected');
         return true;
-      } catch (error) {
-        state.error = error.message;
-        render();
+      } catch (err) {
+        console.error('Client token error:', err);
+        updateTokenStatus('error', 'Token failed');
+        showError('Failed to get client token: ' + err.message);
         return false;
       }
     }
 
-    // =============================================
-    // RENDER FUNCTIONS
-    // =============================================
-    function render() {
-      const app = document.getElementById('app');
-      
-      switch (state.view) {
-        case 'loading':
-          app.innerHTML = renderLoading();
-          break;
-        case 'login':
-          app.innerHTML = renderAuth('login');
-          break;
-        case 'signup':
-          app.innerHTML = renderAuth('signup');
-          break;
-        case 'dashboard':
-          app.innerHTML = renderDashboard();
-          break;
+    function startTokenRefresh() {
+      if (refreshTimer) clearInterval(refreshTimer);
+      refreshTimer = setInterval(async () => {
+        if (!clientTokenExpiresAt) return;
+        const timeLeft = clientTokenExpiresAt - Date.now();
+        if (timeLeft < 5 * 60 * 1000) {
+          console.log('[ContentFlow] Refreshing client token…');
+          destroySDK();
+          const ok = await fetchClientToken();
+          if (ok) loadCurrentTab();
+        }
+      }, 30000);
+    }
+
+    function updateTokenStatus(state, label) {
+      const el = document.getElementById('token-status');
+      const colors = { loading: 'bg-yellow-100 text-yellow-800', ok: 'bg-green-100 text-green-800', error: 'bg-red-100 text-red-800' };
+      const dots = { loading: 'bg-yellow-400', ok: 'bg-green-500', error: 'bg-red-500' };
+      el.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ' + (colors[state] || '');
+      el.innerHTML = '<span class="w-2 h-2 rounded-full ' + (dots[state] || 'bg-gray-300') + '"></span><span>' + label + '</span>';
+    }
+
+    /* ─── SDK Management ─── */
+    function initSDK() {
+      if (sfxInstance) destroySDK();
+      if (typeof SchedulifyX === 'undefined') {
+        console.warn('[ContentFlow] SchedulifyX SDK not loaded');
+        return;
       }
-      
-      attachEventListeners();
-      
-      // Clear messages after 5 seconds
-      if (state.success || state.error) {
-        setTimeout(() => {
-          state.success = null;
-          state.error = null;
-          render();
-        }, 5000);
+      sfxInstance = new SchedulifyX({ clientToken });
+      console.log('[ContentFlow] SDK initialized');
+    }
+
+    function destroySDK() {
+      if (activeWidget) {
+        try { activeWidget.destroy(); } catch (e) { console.warn('Widget destroy error:', e); }
+        activeWidget = null;
       }
+      sfxInstance = null;
     }
 
-    function renderLoading() {
-      return `
-        <div class="min-h-screen flex items-center justify-center">
-          <div class="text-center">
-            <i class="fas fa-spinner fa-spin text-4xl text-blue-500 mb-4"></i>
-            <p class="text-gray-500">Loading...</p>
-          </div>
-        </div>
-      `;
+    /* ─── Navigation ─── */
+    function switchTab(tab) {
+      activeTab = tab;
+
+      // Update sidebar
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        const isActive = btn.dataset.tab === tab;
+        btn.className = 'nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ' +
+          (isActive ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white');
+      });
+
+      // Update header
+      const meta = TAB_META[tab] || {};
+      document.getElementById('page-title').textContent = meta.title || tab;
+      document.getElementById('page-subtitle').textContent = meta.subtitle || '';
+
+      loadCurrentTab();
     }
 
-    function renderAuth(mode) {
-      const isLogin = mode === 'login';
-      return `
-        <div class="min-h-screen gradient-bg flex items-center justify-center p-4">
-          <div class="bg-white rounded-2xl card-shadow p-8 w-full max-w-md">
-            <div class="text-center mb-8">
-              <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-calendar-check text-white text-2xl"></i>
-              </div>
-              <h1 class="text-2xl font-bold text-gray-900">ContentFlow</h1>
-              <p class="text-gray-500 mt-2">Schedule content to all your social accounts</p>
-            </div>
-
-            ${state.error ? `<div class="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm"><i class="fas fa-exclamation-circle mr-2"></i>${state.error}</div>` : ''}
-
-            <form id="authForm" class="space-y-4">
-              ${!isLogin ? `
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                  <input type="text" id="name" required
-                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="John Doe">
-                </div>
-              ` : ''}
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input type="email" id="email" required
-                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="you@example.com">
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                <input type="password" id="password" required minlength="6"
-                  class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="••••••••">
-              </div>
-              <button type="submit"
-                class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-medium hover:opacity-90 transition">
-                ${isLogin ? 'Sign In' : 'Create Account'}
-              </button>
-            </form>
-
-            <p class="text-center mt-6 text-gray-500">
-              ${isLogin ? "Don't have an account?" : 'Already have an account?'}
-              <button id="toggleAuth" class="text-blue-600 font-medium hover:underline ml-1">
-                ${isLogin ? 'Sign up' : 'Sign in'}
-              </button>
-            </p>
-
-            <div class="mt-8 pt-6 border-t border-gray-100">
-              <p class="text-xs text-gray-400 text-center">
-                This demo app is powered by 
-                <a href="https://schedulifyx.com" target="_blank" class="text-blue-500 hover:underline">SchedulifyX API</a>
-              </p>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderDashboard() {
-      return `
-        <div class="min-h-screen bg-gray-50">
-          <!-- Header -->
-          <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
-            <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                  <i class="fas fa-calendar-check text-white"></i>
-                </div>
-                <div>
-                  <h1 class="font-bold text-gray-900">ContentFlow</h1>
-                  <p class="text-xs text-gray-500">Welcome, ${state.user?.name || 'User'}</p>
-                </div>
-              </div>
-              <button id="logoutBtn" class="text-gray-500 hover:text-gray-700 flex items-center gap-2 text-sm">
-                <i class="fas fa-sign-out-alt"></i>
-                Logout
-              </button>
-            </div>
-          </header>
-
-          <main class="max-w-6xl mx-auto px-4 py-8">
-            ${state.success ? `<div class="bg-green-50 text-green-600 p-4 rounded-xl mb-6 flex items-center gap-2"><i class="fas fa-check-circle"></i>${state.success}</div>` : ''}
-            ${state.error ? `<div class="bg-red-50 text-red-600 p-4 rounded-xl mb-6 flex items-center gap-2"><i class="fas fa-exclamation-circle"></i>${state.error}</div>` : ''}
-
-            <!-- Info Banner -->
-            <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 mb-6 border border-blue-100">
-              <div class="flex items-center gap-3">
-                <i class="fas fa-info-circle text-blue-500"></i>
-                <p class="text-sm text-gray-700">
-                  <strong>Demo App:</strong> This is a sample SaaS app showing how to integrate SchedulifyX API. 
-                  The API key is stored securely on the backend - never exposed to the browser.
-                </p>
-              </div>
-            </div>
-
-            <div class="grid lg:grid-cols-3 gap-6">
-              <!-- Left Column -->
-              <div class="lg:col-span-1 space-y-6">
-                ${renderConnectedAccounts()}
-              </div>
-
-              <!-- Right Column -->
-              <div class="lg:col-span-2 space-y-6">
-                ${renderCreatePost()}
-                ${renderRecentPosts()}
-              </div>
-            </div>
-          </main>
-        </div>
-        
-        ${state.credentialModal ? renderCredentialModal() : ''}
-      `;
-    }
-
-    function renderConnectedAccounts() {
-      // OAuth-based platforms
-      const oauthPlatforms = [
-        { id: 'instagram_direct', name: 'Instagram Direct', icon: 'fab fa-instagram', color: 'bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400' },
-        { id: 'instagram', name: 'Instagram (via FB)', icon: 'fab fa-instagram', color: 'bg-gradient-to-br from-pink-500 to-purple-600' },
-        { id: 'facebook', name: 'Facebook', icon: 'fab fa-facebook', color: 'bg-blue-600' },
-        { id: 'twitter', name: 'Twitter/X', icon: 'fab fa-x-twitter', color: 'bg-black' },
-        { id: 'linkedin', name: 'LinkedIn', icon: 'fab fa-linkedin', color: 'bg-blue-700' },
-        { id: 'tiktok', name: 'TikTok', icon: 'fab fa-tiktok', color: 'bg-black' },
-        { id: 'youtube', name: 'YouTube', icon: 'fab fa-youtube', color: 'bg-red-600' },
-        { id: 'pinterest', name: 'Pinterest', icon: 'fab fa-pinterest', color: 'bg-red-500' },
-        { id: 'threads', name: 'Threads', icon: 'fas fa-at', color: 'bg-black' },
-      ];
-      
-      // Credential-based platforms (need special forms)
-      // Mastodon hidden - requires manual token creation which is complex for demo
-      const credentialPlatforms = [
-        { id: 'bluesky', name: 'Bluesky', icon: 'fas fa-cloud', color: 'bg-sky-500' },
-      ];
-
-      return `
-        <div class="bg-white rounded-2xl card-shadow p-6">
-          <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <i class="fas fa-link text-blue-500"></i>
-            Connected Accounts
-          </h2>
-
-          ${state.accounts.length > 0 ? `
-            <div class="space-y-3 mb-6">
-              ${state.accounts.map(account => `
-                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                  <div class="flex items-center gap-3">
-                    <img src="${account.profileImage || `https://ui-avatars.com/api/?name=${account.username}&background=random`}" 
-                      class="w-10 h-10 rounded-full object-cover" alt="${account.username}">
-                    <div>
-                      <p class="font-medium text-gray-900 text-sm">${account.displayName || account.username}</p>
-                      <p class="text-xs text-gray-500">${account.platform}</p>
-                    </div>
-                  </div>
-                  <button onclick="disconnectAccount('${account.id}')" 
-                    class="text-gray-400 hover:text-red-500 transition p-2" title="Disconnect">
-                    <i class="fas fa-times"></i>
-                  </button>
-                </div>
-              `).join('')}
-            </div>
-          ` : `
-            <div class="text-center py-6 mb-4">
-              <i class="fas fa-plug text-4xl text-gray-300 mb-3"></i>
-              <p class="text-gray-500 text-sm">No accounts connected yet</p>
-              <p class="text-gray-400 text-xs mt-1">Connect your social accounts below</p>
-            </div>
-          `}
-
-          <div class="border-t border-gray-100 pt-4">
-            <p class="text-sm font-medium text-gray-700 mb-3">Connect via OAuth:</p>
-            <div class="grid grid-cols-5 gap-2 mb-4">
-              ${oauthPlatforms.map(p => `
-                <button onclick="connectPlatform('${p.id}')" 
-                  class="platform-btn ${p.color} text-white p-3 rounded-xl flex items-center justify-center transition hover:opacity-90"
-                  title="${p.name}">
-                  <i class="${p.icon} text-lg"></i>
-                </button>
-              `).join('')}
-            </div>
-            
-            <p class="text-sm font-medium text-gray-700 mb-3">Connect with credentials:</p>
-            <div class="grid grid-cols-2 gap-2">
-              ${credentialPlatforms.map(p => `
-                <button onclick="showCredentialModal('${p.id}')" 
-                  class="platform-btn ${p.color} text-white p-3 rounded-xl flex items-center justify-center gap-2 transition hover:opacity-90"
-                  title="${p.name}">
-                  <i class="${p.icon} text-lg"></i>
-                  <span class="text-sm font-medium">${p.name}</span>
-                </button>
-              `).join('')}
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderCredentialModal() {
-      const { platform, loading, error } = state.credentialModal;
-      
-      const isBluesky = platform === 'bluesky';
-      const title = isBluesky ? 'Connect Bluesky' : 'Connect Mastodon';
-      const icon = isBluesky ? 'fas fa-cloud' : 'fab fa-mastodon';
-      const color = isBluesky ? 'bg-sky-500' : 'bg-purple-600';
-      
-      return `
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onclick="hideCredentialModal()">
-          <div class="bg-white rounded-2xl p-6 w-full max-w-md mx-4 card-shadow" onclick="event.stopPropagation()">
-            <div class="flex items-center gap-3 mb-6">
-              <div class="w-12 h-12 ${color} rounded-xl flex items-center justify-center">
-                <i class="${icon} text-white text-xl"></i>
-              </div>
-              <h3 class="text-xl font-bold text-gray-900">${title}</h3>
-            </div>
-            
-            ${error ? `<div class="bg-red-50 text-red-600 p-3 rounded-xl mb-4 text-sm flex items-center gap-2"><i class="fas fa-exclamation-circle"></i>${error}</div>` : ''}
-            
-            <form id="credentialForm" class="space-y-4">
-              ${isBluesky ? `
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Handle or Email</label>
-                  <input type="text" id="blueskyIdentifier" required
-                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent"
-                    placeholder="yourhandle.bsky.social or email@example.com">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">App Password</label>
-                  <input type="password" id="blueskyPassword" required
-                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent"
-                    placeholder="xxxx-xxxx-xxxx-xxxx">
-                  <p class="text-xs text-gray-500 mt-1">
-                    <a href="https://bsky.app/settings/app-passwords" target="_blank" class="text-sky-600 hover:underline">
-                      Create an app password →
-                    </a>
-                  </p>
-                </div>
-              ` : `
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Instance URL</label>
-                  <input type="url" id="mastodonInstance" required
-                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="https://mastodon.social">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Access Token</label>
-                  <input type="password" id="mastodonToken" required
-                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="Your access token">
-                  <p class="text-xs text-gray-500 mt-1">
-                    Go to Settings → Development → New Application to create a token
-                  </p>
-                </div>
-              `}
-              
-              <div class="flex gap-3 pt-2">
-                <button type="button" onclick="hideCredentialModal()" 
-                  class="flex-1 px-4 py-3 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition">
-                  Cancel
-                </button>
-                <button type="submit" 
-                  class="flex-1 px-4 py-3 ${color} text-white rounded-xl hover:opacity-90 transition flex items-center justify-center gap-2 ${loading ? 'opacity-50 cursor-not-allowed' : ''}"
-                  ${loading ? 'disabled' : ''}>
-                  ${loading ? '<i class="fas fa-spinner fa-spin"></i>' : '<i class="fas fa-plug"></i>'}
-                  ${loading ? 'Connecting...' : 'Connect'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderCreatePost() {
-      return `
-        <div class="bg-white rounded-2xl card-shadow p-6">
-          <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <i class="fas fa-pen text-blue-500"></i>
-            Create Post
-          </h2>
-
-          <form id="postForm" class="space-y-4">
-            <div>
-              <textarea id="postContent" rows="4" required
-                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                placeholder="What would you like to share?"></textarea>
-            </div>
-
-            <!-- Media Upload Section -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Add Media (optional):</label>
-              
-              <!-- Selected Media Preview -->
-              ${state.selectedMedia.length > 0 ? `
-                <div class="flex flex-wrap gap-2 mb-3">
-                  ${state.selectedMedia.map((media, index) => `
-                    <div class="relative group">
-                      ${media.file.type.startsWith('video/') ? `
-                        <div class="w-20 h-20 bg-gray-800 rounded-lg flex items-center justify-center">
-                          <i class="fas fa-video text-white text-xl"></i>
-                        </div>
-                      ` : `
-                        <img src="${media.preview}" class="w-20 h-20 object-cover rounded-lg">
-                      `}
-                      ${media.uploading ? `
-                        <div class="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
-                          <i class="fas fa-spinner fa-spin text-white"></i>
-                        </div>
-                      ` : `
-                        <button type="button" onclick="removeMedia(${index})" 
-                          class="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition">
-                          <i class="fas fa-times"></i>
-                        </button>
-                      `}
-                    </div>
-                  `).join('')}
-                </div>
-              ` : ''}
-              
-              <!-- Upload Button -->
-              ${state.selectedMedia.length < 4 ? `
-                <label class="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition">
-                  <i class="fas fa-cloud-upload-alt text-gray-400"></i>
-                  <span class="text-sm text-gray-600">Click to add images or videos</span>
-                  <input type="file" id="mediaInput" accept="image/*,video/*" multiple class="hidden" onchange="handleMediaSelect(event)">
-                </label>
-                <p class="text-xs text-gray-500 mt-1">Max 4 files. Images: 10MB, Videos: 200MB. TikTok/YouTube require video.</p>
-              ` : `
-                <p class="text-xs text-gray-500">Maximum 4 files reached</p>
-              `}
-            </div>
-
-            ${state.accounts.length > 0 ? `
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Post to:</label>
-                <div class="flex flex-wrap gap-2">
-                  ${state.accounts.map(account => `
-                    <label class="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition border border-transparent ${state.selectedAccounts.includes(account.id) ? 'border-blue-500 bg-blue-50' : ''}">
-                      <input type="checkbox" name="postAccounts" value="${account.id}" 
-                        class="rounded text-blue-600 account-checkbox"
-                        data-platform="${account.platform}"
-                        ${state.selectedAccounts.includes(account.id) ? 'checked' : ''}
-                        onchange="toggleAccountSelection('${account.id}', '${account.platform}', this.checked)">
-                      <img src="${account.profileImage || `https://ui-avatars.com/api/?name=${account.username}&background=random`}" 
-                        class="w-5 h-5 rounded-full">
-                      <span class="text-sm">${account.username}</span>
-                    </label>
-                  `).join('')}
-                </div>
-              </div>
-              
-              <!-- Pinterest Board Selection (shows when Pinterest is selected) -->
-              ${(() => {
-                const pinterestAccount = state.accounts.find(a => a.platform === 'pinterest');
-                const isPinterestSelected = pinterestAccount && state.selectedAccounts.includes(pinterestAccount.id);
-                const boards = pinterestAccount ? state.pinterestBoards[pinterestAccount.id] : [];
-                
-                if (isPinterestSelected && boards && boards.length > 0) {
-                  return `
-                    <div class="p-3 bg-red-50 rounded-xl border border-red-200" id="pinterestBoardSection">
-                      <label class="block text-sm font-medium text-red-700 mb-2">
-                        <i class="fab fa-pinterest mr-1"></i>Select Pinterest Board:
-                      </label>
-                      <select id="pinterestBoardSelect" class="w-full px-3 py-2 border border-red-200 rounded-lg text-sm"
-                        onchange="const opt = this.options[this.selectedIndex]; state.selectedPinterestBoard = { accountId: '${pinterestAccount.id}', boardId: this.value, boardName: opt.text }; render();">
-                        <option value="">-- Select a board --</option>
-                        ${boards.map(b => `
-                          <option value="${b.id}" ${state.selectedPinterestBoard?.boardId === b.id ? 'selected' : ''}>
-                            ${b.name} (${b.pinCount || 0} pins)
-                          </option>
-                        `).join('')}
-                      </select>
-                      <p class="text-xs text-red-600 mt-1">Pinterest requires a board to be selected</p>
-                    </div>
-                  `;
-                } else if (isPinterestSelected && pinterestAccount) {
-                  return `
-                    <div class="p-3 bg-red-50 rounded-xl border border-red-200" id="pinterestBoardSection">
-                      <p class="text-sm text-red-600"><i class="fas fa-spinner fa-spin mr-1"></i>Loading Pinterest boards...</p>
-                    </div>
-                  `;
-                }
-                return '';
-              })()}
-              
-              <!-- TikTok Settings (shows when TikTok is selected) -->
-              ${(() => {
-                const tiktokAccount = state.accounts.find(a => a.platform === 'tiktok');
-                const isTikTokSelected = tiktokAccount && state.selectedAccounts.includes(tiktokAccount.id);
-                if (isTikTokSelected) {
-                  return `
-                    <div class="p-3 bg-gray-900 rounded-xl border border-gray-700" id="tiktokSettingsSection">
-                      <label class="block text-sm font-medium text-white mb-3">
-                        <i class="fab fa-tiktok mr-1"></i>TikTok Settings (Required)
-                      </label>
-                      
-                      <!-- Privacy Level -->
-                      <div class="mb-3">
-                        <label class="block text-xs text-gray-400 mb-1">Who can view this post?</label>
-                        <select id="tiktokPrivacy" class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-sm text-white"
-                          onchange="state.tiktokSettings.privacyLevel = this.value">
-                          <option value="">-- Select privacy --</option>
-                          <option value="PUBLIC_TO_EVERYONE" ${state.tiktokSettings.privacyLevel === 'PUBLIC_TO_EVERYONE' ? 'selected' : ''}>Public (Everyone)</option>
-                          <option value="MUTUAL_FOLLOW_FRIENDS" ${state.tiktokSettings.privacyLevel === 'MUTUAL_FOLLOW_FRIENDS' ? 'selected' : ''}>Friends (Mutual followers)</option>
-                          <option value="FOLLOWER_OF_CREATOR" ${state.tiktokSettings.privacyLevel === 'FOLLOWER_OF_CREATOR' ? 'selected' : ''}>Followers only</option>
-                          <option value="SELF_ONLY" ${state.tiktokSettings.privacyLevel === 'SELF_ONLY' ? 'selected' : ''}>Private (Only me)</option>
-                        </select>
-                      </div>
-                      
-                      <!-- Interaction Settings -->
-                      <div class="flex flex-wrap gap-3 mb-3">
-                        <label class="flex items-center gap-2 text-xs text-gray-300">
-                          <input type="checkbox" id="tiktokComment" ${state.tiktokSettings.allowComment ? 'checked' : ''}
-                            onchange="state.tiktokSettings.allowComment = this.checked" class="rounded">
-                          Allow comments
-                        </label>
-                        <label class="flex items-center gap-2 text-xs text-gray-300">
-                          <input type="checkbox" id="tiktokDuet" ${state.tiktokSettings.allowDuet ? 'checked' : ''}
-                            onchange="state.tiktokSettings.allowDuet = this.checked" class="rounded">
-                          Allow duet
-                        </label>
-                        <label class="flex items-center gap-2 text-xs text-gray-300">
-                          <input type="checkbox" id="tiktokStitch" ${state.tiktokSettings.allowStitch ? 'checked' : ''}
-                            onchange="state.tiktokSettings.allowStitch = this.checked" class="rounded">
-                          Allow stitch
-                        </label>
-                      </div>
-                      
-                      <!-- Commercial Content Disclosure -->
-                      <div class="border-t border-gray-700 pt-3">
-                        <label class="flex items-center gap-2 text-xs text-gray-300 mb-2">
-                          <input type="checkbox" id="tiktokCommercial" ${state.tiktokSettings.isCommercialContent ? 'checked' : ''}
-                            onchange="state.tiktokSettings.isCommercialContent = this.checked; render()" class="rounded">
-                          This is commercial/promotional content
-                        </label>
-                        ${state.tiktokSettings.isCommercialContent ? `
-                          <div class="ml-5 space-y-2">
-                            <label class="flex items-center gap-2 text-xs text-gray-400">
-                              <input type="checkbox" id="tiktokYourBrand" ${state.tiktokSettings.isYourBrand ? 'checked' : ''}
-                                onchange="state.tiktokSettings.isYourBrand = this.checked" class="rounded">
-                              Promoting my own brand/business
-                            </label>
-                            <label class="flex items-center gap-2 text-xs text-gray-400">
-                              <input type="checkbox" id="tiktokBranded" ${state.tiktokSettings.isBrandedContent ? 'checked' : ''}
-                                onchange="state.tiktokSettings.isBrandedContent = this.checked" class="rounded">
-                              Paid partnership / sponsored content
-                            </label>
-                          </div>
-                        ` : ''}
-                      </div>
-                    </div>
-                  `;
-                }
-                return '';
-              })()}
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Schedule:</label>
-                <div class="flex gap-4">
-                  <label class="flex items-center gap-2">
-                    <input type="radio" name="scheduleType" value="now" checked class="text-blue-600">
-                    <span class="text-sm">Post Now</span>
-                  </label>
-                  <label class="flex items-center gap-2">
-                    <input type="radio" name="scheduleType" value="later" class="text-blue-600">
-                    <span class="text-sm">Schedule</span>
-                  </label>
-                </div>
-                <input type="datetime-local" id="scheduleTime" 
-                  class="mt-2 w-full px-4 py-2 border border-gray-200 rounded-lg hidden">
-              </div>
-
-              <button type="submit"
-                class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-medium hover:opacity-90 transition flex items-center justify-center gap-2">
-                <i class="fas fa-paper-plane"></i>
-                Create Post
-              </button>
-            ` : `
-              <div class="bg-yellow-50 text-yellow-700 p-4 rounded-lg text-sm">
-                <i class="fas fa-exclamation-triangle mr-2"></i>
-                Connect at least one social account to create posts.
-              </div>
-            `}
-          </form>
-        </div>
-      `;
-    }
-
-    // Get platform icon
-    function getPlatformIcon(platform) {
-      const icons = {
-        instagram: 'fab fa-instagram',
-        instagram_direct: 'fab fa-instagram',
-        instagram_business: 'fab fa-instagram',
-        facebook: 'fab fa-facebook',
-        twitter: 'fab fa-twitter',
-        tiktok: 'fab fa-tiktok',
-        youtube: 'fab fa-youtube',
-        linkedin: 'fab fa-linkedin',
-        pinterest: 'fab fa-pinterest',
-        threads: 'fas fa-at',
-        bluesky: 'fas fa-cloud',
-        mastodon: 'fab fa-mastodon',
-      };
-      return icons[platform] || 'fas fa-globe';
-    }
-    
-    // Get platform color
-    function getPlatformColor(platform) {
-      const colors = {
-        instagram: 'text-pink-500',
-        instagram_direct: 'text-pink-500',
-        instagram_business: 'text-pink-500',
-        facebook: 'text-blue-600',
-        twitter: 'text-sky-500',
-        tiktok: 'text-gray-900',
-        youtube: 'text-red-600',
-        linkedin: 'text-blue-700',
-        pinterest: 'text-red-500',
-        threads: 'text-gray-800',
-        bluesky: 'text-sky-400',
-        mastodon: 'text-purple-600',
-      };
-      return colors[platform] || 'text-gray-500';
-    }
-
-    function renderRecentPosts() {
-      return `
-        <div class="bg-white rounded-2xl card-shadow p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <i class="fas fa-clock text-blue-500"></i>
-              Recent Posts
-            </h2>
-            <button onclick="loadDashboardData().then(render)" class="text-blue-500 hover:text-blue-600 text-sm">
-              <i class="fas fa-sync mr-1"></i>Refresh
-            </button>
-          </div>
-
-          ${state.posts.length > 0 ? `
-            <div class="space-y-3">
-              ${state.posts.slice(0, 10).map(post => `
-                <div class="p-4 bg-gray-50 rounded-xl">
-                  <div class="flex items-start justify-between">
-                    <p class="text-sm text-gray-700 flex-1">${post.content?.substring(0, 150) || 'No content'}${post.content?.length > 150 ? '...' : ''}</p>
-                    <span class="ml-3 px-2 py-1 text-xs rounded-full flex-shrink-0 ${
-                      post.status === 'published' ? 'bg-green-100 text-green-600' :
-                      post.status === 'partial' ? 'bg-yellow-100 text-yellow-600' :
-                      post.status === 'scheduled' ? 'bg-blue-100 text-blue-600' :
-                      post.status === 'publishing' ? 'bg-yellow-100 text-yellow-600' :
-                      post.status === 'failed' ? 'bg-red-100 text-red-600' :
-                      'bg-gray-100 text-gray-600'
-                    }">${post.status}</span>
-                  </div>
-                  
-                  <!-- Platform Status Breakdown -->
-                  ${post.platforms && post.platforms.length > 0 && (post.status === 'published' || post.status === 'partial' || post.status === 'failed') ? `
-                    <div class="flex flex-wrap gap-2 mt-3">
-                      ${post.platforms.map(p => `
-                        <div class="flex items-center gap-1 px-2 py-1 rounded-lg text-xs ${
-                          p.status === 'published' ? 'bg-green-50 text-green-700' :
-                          p.status === 'failed' ? 'bg-red-50 text-red-700' :
-                          p.status === 'pending' ? 'bg-gray-100 text-gray-600' :
-                          'bg-gray-100 text-gray-600'
-                        }" title="${p.error || p.status}">
-                          <i class="${getPlatformIcon(p.platform)} ${p.status === 'published' ? 'text-green-500' : p.status === 'failed' ? 'text-red-500' : 'text-gray-400'}"></i>
-                          <span>${p.platform?.replace('_', ' ')}</span>
-                          ${p.status === 'published' ? '<i class="fas fa-check text-green-500"></i>' : ''}
-                          ${p.status === 'failed' ? '<i class="fas fa-times text-red-500"></i>' : ''}
-                        </div>
-                      `).join('')}
-                    </div>
-                    
-                    <!-- Show failed platform errors -->
-                    ${post.platforms.filter(p => p.status === 'failed' && p.error).length > 0 ? `
-                      <div class="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded-lg">
-                        <i class="fas fa-exclamation-circle mr-1"></i>
-                        ${post.platforms.filter(p => p.status === 'failed' && p.error).map(p => 
-                          `<strong>${p.platform}:</strong> ${p.error?.substring(0, 100)}${p.error?.length > 100 ? '...' : ''}`
-                        ).join('<br>')}
-                      </div>
-                    ` : ''}
-                  ` : ''}
-                  
-                  <div class="flex items-center gap-4 mt-3 text-xs text-gray-500">
-                    <span><i class="fas fa-calendar mr-1"></i>${post.scheduledFor ? new Date(post.scheduledFor).toLocaleString() : 'Now'}</span>
-                    <span><i class="fas fa-share-nodes mr-1"></i>${post.platforms?.length || 0} platforms</span>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          ` : `
-            <div class="text-center py-8">
-              <i class="fas fa-inbox text-4xl text-gray-300 mb-3"></i>
-              <p class="text-gray-500">No posts yet</p>
-              <p class="text-gray-400 text-xs mt-1">Create your first post above!</p>
-            </div>
-          `}
-        </div>
-      `;
-    }
-
-    // =============================================
-    // EVENT LISTENERS
-    // =============================================
-    function attachEventListeners() {
-      // Auth form
-      const authForm = document.getElementById('authForm');
-      if (authForm) {
-        authForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const email = document.getElementById('email').value;
-          const password = document.getElementById('password').value;
-          const nameEl = document.getElementById('name');
-          
-          if (nameEl) {
-            await signup(nameEl.value, email, password);
-          } else {
-            await login(email, password);
-          }
-        });
+    function loadCurrentTab() {
+      // Destroy previous widget
+      if (activeWidget) {
+        try { activeWidget.destroy(); } catch (e) {}
+        activeWidget = null;
       }
 
-      // Toggle auth mode
-      const toggleAuth = document.getElementById('toggleAuth');
-      if (toggleAuth) {
-        toggleAuth.addEventListener('click', () => {
-          state.view = state.view === 'login' ? 'signup' : 'login';
-          state.error = null;
-          render();
-        });
+      // Hide all content sections
+      document.getElementById('content-loading').classList.add('hidden');
+      document.getElementById('content-error').classList.add('hidden');
+      document.getElementById('embed-container').classList.add('hidden');
+      document.getElementById('connect-panel').classList.add('hidden');
+
+      if (activeTab === 'connect') {
+        document.getElementById('connect-panel').classList.remove('hidden');
+        hideConnectForms();
+        return;
       }
 
-      // Logout
-      const logoutBtn = document.getElementById('logoutBtn');
-      if (logoutBtn) {
-        logoutBtn.addEventListener('click', logout);
+      if (!sfxInstance || !clientToken) {
+        showError('SDK not initialized. Please wait or refresh.');
+        return;
       }
 
-      // Post form
-      const postForm = document.getElementById('postForm');
-      if (postForm) {
-        postForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const content = document.getElementById('postContent').value;
-          const accountIds = Array.from(document.querySelectorAll('input[name="postAccounts"]:checked')).map(cb => cb.value);
-          const scheduleType = document.querySelector('input[name="scheduleType"]:checked')?.value;
-          let scheduledFor = null;
-          
-          if (scheduleType === 'later') {
-            const scheduleTime = document.getElementById('scheduleTime').value;
-            if (scheduleTime) {
-              scheduledFor = new Date(scheduleTime).toISOString();
+      embedComponent(activeTab);
+    }
+
+    function embedComponent(name) {
+      const container = document.getElementById('embed-container');
+      container.innerHTML = '';
+      container.classList.add('hidden');
+      document.getElementById('content-loading').classList.remove('hidden');
+      document.getElementById('content-error').classList.add('hidden');
+
+      try {
+        activeWidget = sfxInstance.embed(name, {
+          container: '#embed-container',
+          on: {
+            ready: () => {
+              document.getElementById('content-loading').classList.add('hidden');
+              container.classList.remove('hidden');
+              console.log('[ContentFlow] ' + name + ' ready');
+            },
+            error: (err) => {
+              console.error('[ContentFlow] Embed error:', err);
+              showError(err.message || 'Component failed to load');
             }
           }
-          
-          if (accountIds.length === 0) {
-            state.error = 'Please select at least one account';
-            render();
-            return;
-          }
-          
-          const success = await createPost(content, accountIds, scheduledFor);
-          if (success) {
-            document.getElementById('postContent').value = '';
-            document.querySelectorAll('input[name="postAccounts"]').forEach(cb => cb.checked = false);
-          }
         });
+      } catch (err) {
+        showError('Failed to embed component: ' + err.message);
       }
+    }
 
-      // Schedule toggle
-      document.querySelectorAll('input[name="scheduleType"]').forEach(radio => {
-        radio.addEventListener('change', (e) => {
-          const scheduleTime = document.getElementById('scheduleTime');
-          if (scheduleTime) {
-            scheduleTime.classList.toggle('hidden', e.target.value !== 'later');
-          }
-        });
+    function showError(msg) {
+      document.getElementById('content-loading').classList.add('hidden');
+      document.getElementById('embed-container').classList.add('hidden');
+      document.getElementById('error-message').textContent = msg;
+      document.getElementById('content-error').classList.remove('hidden');
+    }
+
+    function retryLoad() {
+      if (!clientToken) {
+        fetchClientToken().then(ok => { if (ok) loadCurrentTab(); });
+      } else {
+        loadCurrentTab();
+      }
+    }
+
+    /* ─── Connect Account ─── */
+    function hideConnectForms() {
+      document.getElementById('bluesky-form').classList.add('hidden');
+      document.getElementById('mastodon-form').classList.add('hidden');
+      document.getElementById('connect-status').classList.add('hidden');
+    }
+
+    function connectOAuth(platform) {
+      hideConnectForms();
+      showConnectStatus('loading', 'Initiating ' + platform + ' connection…');
+
+      apiFetch('POST', '/api/accounts/connect/' + platform, {
+        redirectUri: window.location.origin + '/callback'
+      }).then(data => {
+        if (data.authUrl) {
+          showConnectStatus('info', 'Opening authorization window…');
+          const popup = window.open(data.authUrl, 'oauth_' + platform, 'width=600,height=700,left=200,top=100');
+          const check = setInterval(() => {
+            if (!popup || popup.closed) {
+              clearInterval(check);
+              showConnectStatus('ok', 'Authorization window closed. Check Accounts tab for status.');
+            }
+          }, 1000);
+        } else if (data.account) {
+          showConnectStatus('ok', platform + ' connected successfully!');
+        }
+      }).catch(err => {
+        showConnectStatus('error', err.message);
       });
-      
-      // Credential form (Bluesky/Mastodon)
-      const credentialForm = document.getElementById('credentialForm');
-      if (credentialForm) {
-        credentialForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          
-          if (state.credentialModal.platform === 'bluesky') {
-            const identifier = document.getElementById('blueskyIdentifier').value;
-            const appPassword = document.getElementById('blueskyPassword').value;
-            await connectBluesky(identifier, appPassword);
-          } else {
-            const instanceUrl = document.getElementById('mastodonInstance').value;
-            const accessToken = document.getElementById('mastodonToken').value;
-            await connectMastodon(instanceUrl, accessToken);
-          }
-        });
+    }
+
+    function showBlueskyForm() {
+      hideConnectForms();
+      document.getElementById('bluesky-form').classList.remove('hidden');
+    }
+
+    function showMastodonForm() {
+      hideConnectForms();
+      document.getElementById('mastodon-form').classList.remove('hidden');
+    }
+
+    async function connectBluesky() {
+      const identifier = document.getElementById('bsky-identifier').value.trim();
+      const appPassword = document.getElementById('bsky-password').value.trim();
+      if (!identifier || !appPassword) return showInlineStatus('bsky-status', 'error', 'Both fields are required.');
+
+      showInlineStatus('bsky-status', 'loading', 'Connecting…');
+      try {
+        const data = await apiFetch('POST', '/api/accounts/connect/bluesky', { identifier, appPassword });
+        showInlineStatus('bsky-status', 'ok', 'Bluesky connected successfully!');
+        document.getElementById('bsky-identifier').value = '';
+        document.getElementById('bsky-password').value = '';
+      } catch (err) {
+        showInlineStatus('bsky-status', 'error', err.message);
       }
     }
 
-    // Handle OAuth callback
-    function handleCallback() {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.has('success') || urlParams.has('code') || window.location.pathname === '/callback') {
-        // Clear URL and reload data
-        window.history.replaceState({}, document.title, '/');
-        state.success = 'Account connected successfully!';
+    async function connectMastodon() {
+      const instanceUrl = document.getElementById('masto-instance').value.trim();
+      const accessToken = document.getElementById('masto-token').value.trim();
+      if (!instanceUrl || !accessToken) return showInlineStatus('masto-status', 'error', 'Both fields are required.');
+
+      showInlineStatus('masto-status', 'loading', 'Connecting…');
+      try {
+        const data = await apiFetch('POST', '/api/accounts/connect/mastodon', { instanceUrl, accessToken });
+        showInlineStatus('masto-status', 'ok', 'Mastodon connected successfully!');
+        document.getElementById('masto-instance').value = '';
+        document.getElementById('masto-token').value = '';
+      } catch (err) {
+        showInlineStatus('masto-status', 'error', err.message);
       }
     }
 
-    // =============================================
-    // INITIALIZE
-    // =============================================
-    handleCallback();
-    checkAuth();
+    function showConnectStatus(type, msg) {
+      const el = document.getElementById('connect-status');
+      const cls = { loading: 'bg-blue-50 text-blue-700 border border-blue-200', ok: 'bg-green-50 text-green-700 border border-green-200', error: 'bg-red-50 text-red-700 border border-red-200', info: 'bg-gray-50 text-gray-700 border border-gray-200' };
+      el.className = 'mt-4 text-sm rounded-lg px-4 py-3 ' + (cls[type] || cls.info);
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+
+    function showInlineStatus(id, type, msg) {
+      const el = document.getElementById(id);
+      const cls = { loading: 'bg-blue-50 text-blue-700', ok: 'bg-green-50 text-green-700', error: 'bg-red-50 text-red-700' };
+      el.className = 'mt-3 text-sm rounded-lg px-3 py-2 ' + (cls[type] || '');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+
+    /* ─── Boot ─── */
+    async function boot() {
+      const token = getToken();
+      if (!token) return; // stay on auth screen
+
+      try {
+        const data = await apiFetch('GET', '/api/auth/me');
+        currentUser = data.user;
+        showDashboard();
+      } catch (err) {
+        console.warn('Session expired:', err);
+        clearToken();
+      }
+    }
+
+    boot();
   </script>
 </body>
 </html>
