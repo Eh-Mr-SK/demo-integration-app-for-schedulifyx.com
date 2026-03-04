@@ -276,7 +276,17 @@
                   I</div>
                 <div class="text-left">
                   <p class="text-sm font-semibold text-gray-900">Instagram</p>
-                  <p class="text-xs text-gray-500">Business & Creator</p>
+                  <p class="text-xs text-gray-500">via Facebook (Business)</p>
+                </div>
+              </button>
+              <button onclick="connectOAuth('instagram_direct')"
+                class="platform-btn flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl hover:border-pink-300 hover:shadow-sm transition">
+                <div
+                  class="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-400 via-pink-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                  I</div>
+                <div class="text-left">
+                  <p class="text-sm font-semibold text-gray-900">Instagram Direct</p>
+                  <p class="text-xs text-gray-500">Direct Login (Recommended)</p>
                 </div>
               </button>
               <button onclick="connectOAuth('twitter')"
@@ -683,12 +693,35 @@
         redirectUri: window.location.origin + '/callback'
       }).then(data => {
         if (data.authUrl) {
-          showConnectStatus('info', 'Opening authorization window…');
+          showConnectStatus('info', 'Opening authorization window… Complete the login in the popup.');
           const popup = window.open(data.authUrl, 'oauth_' + platform, 'width=600,height=700,left=200,top=100');
+          
+          // Listen for postMessage from callback page
+          function onMessage(e) {
+            if (e.origin !== window.location.origin) return;
+            if (e.data && e.data.type === 'oauth-callback') {
+              window.removeEventListener('message', onMessage);
+              if (e.data.success) {
+                showConnectStatus('ok', (e.data.platform || platform) + ' connected successfully! Check the Accounts tab.');
+              } else {
+                showConnectStatus('error', e.data.error || 'Connection failed. Please try again.');
+              }
+            }
+          }
+          window.addEventListener('message', onMessage);
+
+          // Fallback: watch for popup close
           const check = setInterval(() => {
             if (!popup || popup.closed) {
               clearInterval(check);
-              showConnectStatus('ok', 'Authorization window closed. Check Accounts tab for status.');
+              // Give postMessage a moment to arrive before falling back
+              setTimeout(() => {
+                window.removeEventListener('message', onMessage);
+                const statusEl = document.getElementById('connect-status');
+                if (statusEl && statusEl.textContent.includes('Opening authorization')) {
+                  showConnectStatus('ok', 'Authorization window closed. Check Accounts tab for status.');
+                }
+              }, 500);
             }
           }, 1000);
         } else if (data.account) {
@@ -758,21 +791,49 @@
     }
 
     /* ─── Boot ─── */
-    async function boot() {
-      const token = getToken();
-      if (!token) return; // stay on auth screen
+    // Handle OAuth callback (popup lands here after redirect)
+    if (window.location.pathname === '/callback') {
+      const params = new URLSearchParams(window.location.search);
+      const success = params.get('success') === 'true';
+      const platform = params.get('platform') || '';
+      const error = params.get('error') || '';
 
-      try {
-        const data = await apiFetch('GET', '/api/auth/me');
-        currentUser = data.user;
-        showDashboard();
-      } catch (err) {
-        console.warn('Session expired:', err);
-        clearToken();
+      // Notify opener window
+      if (window.opener) {
+        window.opener.postMessage({
+          type: 'oauth-callback',
+          success: success,
+          platform: platform,
+          error: error
+        }, window.location.origin);
       }
-    }
 
-    boot();
+      // Show a brief status and close
+      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui;background:#f9fafb;">' +
+        '<div style="text-align:center;padding:40px;">' +
+        (success
+          ? '<div style="font-size:48px;margin-bottom:16px;">✅</div><h2 style="color:#065f46;font-size:20px;">Connected!</h2><p style="color:#6b7280;margin-top:8px;">' + (platform || 'Account') + ' connected successfully. This window will close…</p>'
+          : '<div style="font-size:48px;margin-bottom:16px;">❌</div><h2 style="color:#991b1b;font-size:20px;">Connection Failed</h2><p style="color:#6b7280;margin-top:8px;">' + (error || 'Something went wrong.') + '</p>'
+        ) + '</div></div>';
+      setTimeout(() => window.close(), 2000);
+    } else {
+      // Normal boot
+      async function boot() {
+        const token = getToken();
+        if (!token) return; // stay on auth screen
+
+        try {
+          const data = await apiFetch('GET', '/api/auth/me');
+          currentUser = data.user;
+          showDashboard();
+        } catch (err) {
+          console.warn('Session expired:', err);
+          clearToken();
+        }
+      }
+
+      boot();
+    }
   </script>
 </body>
 
