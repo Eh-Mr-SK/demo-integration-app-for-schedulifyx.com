@@ -235,14 +235,17 @@
 
         <!-- Error state -->
         <div id="content-error" class="hidden flex flex-col items-center justify-center h-full">
-          <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-4">
+          <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-4" id="error-icon">
             <svg class="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <p class="text-gray-800 font-medium mb-1">Failed to load component</p>
+          <p class="text-gray-800 font-medium mb-1" id="error-title">Failed to load component</p>
           <p class="text-gray-500 text-sm mb-4" id="error-message">Something went wrong.</p>
+          <div id="error-tier-info" class="hidden mb-4 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 max-w-md text-center">
+            <p class="text-xs text-amber-700">Your API key contract may be inactive or your tier does not include this feature. Please check your API key status at <a href="https://app.schedulifyx.com/api-keys" target="_blank" class="underline font-medium text-amber-800">app.schedulifyx.com/api-keys</a> or contact <a href="mailto:support@schedulifyx.com" class="underline font-medium text-amber-800">support@schedulifyx.com</a>.</p>
+          </div>
           <button onclick="retryLoad()"
             class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition">Retry</button>
         </div>
@@ -668,6 +671,24 @@
       document.getElementById('embed-container').classList.add('hidden');
       document.getElementById('error-message').textContent = msg;
       document.getElementById('content-error').classList.remove('hidden');
+
+      // Detect tier/contract errors and show helpful info
+      const lc = (msg || '').toLowerCase();
+      const isTierError = lc.includes('tier') || lc.includes('access') || lc.includes('contract') || lc.includes('inactive') || lc.includes('embed-only') || lc.includes('unauthorized') || lc.includes('scope');
+      const tierInfoEl = document.getElementById('error-tier-info');
+      const titleEl = document.getElementById('error-title');
+      const iconEl = document.getElementById('error-icon');
+      if (isTierError && tierInfoEl) {
+        tierInfoEl.classList.remove('hidden');
+        titleEl.textContent = 'Access Restricted';
+        iconEl.innerHTML = '<svg class="w-8 h-8 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>';
+        iconEl.className = 'w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mb-4';
+      } else if (tierInfoEl) {
+        tierInfoEl.classList.add('hidden');
+        titleEl.textContent = 'Failed to load component';
+        iconEl.innerHTML = '<svg class="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>';
+        iconEl.className = 'w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-4';
+      }
     }
 
     function retryLoad() {
