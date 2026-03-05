@@ -138,6 +138,55 @@ app.post('/api/accounts/connect/:platform', authMiddleware, async (req, res) => 
   }
 });
 
+// DISCONNECT (DELETE) SOCIAL ACCOUNT
+app.delete('/api/accounts/:accountId', authMiddleware, async (req, res) => {
+  try {
+    const tenantId = await getOrCreateTenant(req.user.id, req.user.email, req.user.name);
+    await schedulifyApi('DELETE', `/tenants/${tenantId}/accounts/${req.params.accountId}`);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Disconnect account error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// LIST CONNECTED ACCOUNTS
+app.get('/api/accounts', authMiddleware, async (req, res) => {
+  try {
+    const tenantId = await getOrCreateTenant(req.user.id, req.user.email, req.user.name);
+    const data = await schedulifyApi('GET', `/accounts?tenantUserId=${tenantId}`);
+    res.json({ accounts: data.data || [] });
+  } catch (error) {
+    console.error('Accounts error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// LIST POSTS (for Post History page)
+app.get('/api/posts', authMiddleware, async (req, res) => {
+  try {
+    const tenantId = await getOrCreateTenant(req.user.id, req.user.email, req.user.name);
+    const status = req.query.status || '';
+    const qs = status ? `?tenantUserId=${tenantId}&status=${status}` : `?tenantUserId=${tenantId}`;
+    const data = await schedulifyApi('GET', `/posts${qs}`);
+    res.json({ posts: data.data || [], total: data.pagination?.total || 0 });
+  } catch (error) {
+    console.error('Posts error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE A POST
+app.delete('/api/posts/:id', authMiddleware, async (req, res) => {
+  try {
+    await schedulifyApi('DELETE', `/posts/${req.params.id}`);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Delete post error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // SERVE FRONTEND
 app.use(express.static(path.join(__dirname, '../frontend')));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../frontend/index.html')));

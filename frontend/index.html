@@ -184,6 +184,24 @@
             </svg>
             Connect Account
           </button>
+          <button onclick="switchTab('manage-accounts')" data-tab="manage-accounts"
+            class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-gray-300 hover:bg-gray-800 hover:text-white">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Manage Accounts
+          </button>
+          <button onclick="switchTab('posts-history')" data-tab="posts-history"
+            class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-gray-300 hover:bg-gray-800 hover:text-white">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Post History
+          </button>
         </div>
       </nav>
 
@@ -243,8 +261,14 @@
           </div>
           <p class="text-gray-800 font-medium mb-1" id="error-title">Failed to load component</p>
           <p class="text-gray-500 text-sm mb-4" id="error-message">Something went wrong.</p>
-          <div id="error-tier-info" class="hidden mb-4 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 max-w-md text-center">
-            <p class="text-xs text-amber-700">Your API key contract may be inactive or your tier does not include this feature. Please check your API key status at <a href="https://app.schedulifyx.com/api-keys" target="_blank" class="underline font-medium text-amber-800">app.schedulifyx.com/api-keys</a> or contact <a href="mailto:support@schedulifyx.com" class="underline font-medium text-amber-800">support@schedulifyx.com</a>.</p>
+          <div id="error-tier-info"
+            class="hidden mb-4 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 max-w-md text-center">
+            <p class="text-xs text-amber-700">Your API key contract may be inactive or your tier does not include this
+              feature. Please check your API key status at <a href="https://app.schedulifyx.com/api-keys"
+                target="_blank" class="underline font-medium text-amber-800">app.schedulifyx.com/api-keys</a> or contact
+              <a href="mailto:support@schedulifyx.com"
+                class="underline font-medium text-amber-800">support@schedulifyx.com</a>.
+            </p>
           </div>
           <button onclick="retryLoad()"
             class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition">Retry</button>
@@ -425,6 +449,35 @@
             <div id="connect-status" class="hidden mt-4 text-sm rounded-lg px-4 py-3"></div>
           </div>
         </div>
+
+        <!-- Manage Accounts panel (sibling of connect-panel) -->
+        <div id="manage-accounts-panel" class="hidden fade-in">
+          <div class="max-w-2xl mx-auto">
+            <h2 class="text-lg font-semibold text-gray-900 mb-1">Manage Connected Accounts</h2>
+            <p class="text-sm text-gray-500 mb-6">View, manage or disconnect your linked social accounts.</p>
+            <div id="manage-accounts-list"></div>
+          </div>
+        </div>
+
+        <!-- Posts History panel -->
+        <div id="posts-history-panel" class="hidden fade-in">
+          <div class="max-w-4xl mx-auto">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h2 class="text-lg font-semibold text-gray-900 mb-1">Post History</h2>
+                <p class="text-sm text-gray-500">View all scheduled, published, and draft posts.</p>
+              </div>
+              <div class="flex gap-2" id="post-filter-buttons">
+                <button onclick="filterPosts('')" class="post-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg transition bg-blue-600 text-white">All</button>
+                <button onclick="filterPosts('published')" class="post-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg transition bg-gray-100 text-gray-700 hover:bg-gray-200">Published</button>
+                <button onclick="filterPosts('scheduled')" class="post-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg transition bg-gray-100 text-gray-700 hover:bg-gray-200">Scheduled</button>
+                <button onclick="filterPosts('draft')" class="post-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg transition bg-gray-100 text-gray-700 hover:bg-gray-200">Draft</button>
+                <button onclick="filterPosts('failed')" class="post-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg transition bg-gray-100 text-gray-700 hover:bg-gray-200">Failed</button>
+              </div>
+            </div>
+            <div id="posts-history-list"></div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
@@ -450,6 +503,8 @@
       'accounts': { title: 'Accounts', subtitle: 'Manage connected social media accounts' },
       'analytics': { title: 'Analytics', subtitle: 'Performance insights and reporting' },
       'connect': { title: 'Connect Account', subtitle: 'Link a new social media platform' },
+      'manage-accounts': { title: 'Manage Accounts', subtitle: 'View and disconnect connected accounts' },
+      'posts-history': { title: 'Post History', subtitle: 'View all scheduled, published, and draft posts' },
     };
 
     /* ─── Helpers ─── */
@@ -624,10 +679,24 @@
       document.getElementById('content-error').classList.add('hidden');
       document.getElementById('embed-container').classList.add('hidden');
       document.getElementById('connect-panel').classList.add('hidden');
+      document.getElementById('manage-accounts-panel').classList.add('hidden');
+      document.getElementById('posts-history-panel').classList.add('hidden');
 
       if (activeTab === 'connect') {
         document.getElementById('connect-panel').classList.remove('hidden');
         hideConnectForms();
+        return;
+      }
+
+      if (activeTab === 'manage-accounts') {
+        document.getElementById('manage-accounts-panel').classList.remove('hidden');
+        loadManageAccounts();
+        return;
+      }
+
+      if (activeTab === 'posts-history') {
+        document.getElementById('posts-history-panel').classList.remove('hidden');
+        loadPostsHistory();
         return;
       }
 
@@ -715,8 +784,8 @@
       }).then(data => {
         if (data.authUrl) {
           showConnectStatus('info', 'Opening authorization window… Complete the login in the popup.');
-          const popup = window.open(data.authUrl, 'oauth_' + platform, 'width=600,height=700,left=200,top=100');
-          
+          const popup = window.open(data.authUrl, 'oauth_' + platform, 'width=800,height=850,left=100,top=50');
+
           // Listen for postMessage from callback page
           function onMessage(e) {
             if (e.origin !== window.location.origin) return;
@@ -733,16 +802,20 @@
 
           // Fallback: watch for popup close
           const check = setInterval(() => {
-            if (!popup || popup.closed) {
-              clearInterval(check);
-              // Give postMessage a moment to arrive before falling back
-              setTimeout(() => {
-                window.removeEventListener('message', onMessage);
-                const statusEl = document.getElementById('connect-status');
-                if (statusEl && statusEl.textContent.includes('Opening authorization')) {
-                  showConnectStatus('ok', 'Authorization window closed. Check Accounts tab for status.');
-                }
-              }, 500);
+            try {
+              if (!popup || popup.closed) {
+                clearInterval(check);
+                // Give postMessage a moment to arrive before falling back
+                setTimeout(() => {
+                  window.removeEventListener('message', onMessage);
+                  const statusEl = document.getElementById('connect-status');
+                  if (statusEl && statusEl.textContent.includes('Opening authorization')) {
+                    showConnectStatus('ok', 'Authorization window closed. Check Accounts tab for status.');
+                  }
+                }, 500);
+              }
+            } catch (e) {
+              // COOP may block access to popup.closed — ignore and keep polling
             }
           }, 1000);
         } else if (data.account) {
@@ -809,6 +882,120 @@
       el.className = 'mt-3 text-sm rounded-lg px-3 py-2 ' + (cls[type] || '');
       el.textContent = msg;
       el.classList.remove('hidden');
+    }
+
+    /* ─── Posts History ─── */
+    let postsFilter = '';
+
+    function filterPosts(status) {
+      postsFilter = status;
+      // Update filter button styles
+      document.querySelectorAll('.post-filter-btn').forEach(btn => {
+        btn.className = 'post-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg transition ' +
+          (btn.textContent.trim().toLowerCase() === (status || 'all')
+            ? 'bg-blue-600 text-white'
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200');
+      });
+      loadPostsHistory();
+    }
+
+    async function loadPostsHistory() {
+      const container = document.getElementById('posts-history-list');
+      container.innerHTML = '<div class="flex items-center justify-center py-12"><div class="spinner"></div></div>';
+      try {
+        const qs = postsFilter ? '?status=' + postsFilter : '';
+        const data = await apiFetch('GET', '/api/posts' + qs);
+        const posts = data.posts || [];
+        if (!posts.length) {
+          container.innerHTML = '<div class="text-center py-12"><svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg><p class="text-gray-500 text-sm">' + (postsFilter ? 'No ' + postsFilter + ' posts found.' : 'No posts yet. Create your first post!') + '</p></div>';
+          return;
+        }
+
+        const statusColors = { published: 'bg-green-100 text-green-700', scheduled: 'bg-blue-100 text-blue-700', draft: 'bg-gray-100 text-gray-600', failed: 'bg-red-100 text-red-700', publishing: 'bg-yellow-100 text-yellow-700' };
+        const platformColors = { facebook: 'bg-blue-600', instagram: 'bg-gradient-to-br from-purple-600 to-pink-500', instagram_direct: 'bg-gradient-to-br from-yellow-400 via-pink-500 to-purple-600', twitter: 'bg-black', linkedin: 'bg-blue-700', tiktok: 'bg-black', youtube: 'bg-red-500', pinterest: 'bg-red-600', bluesky: 'bg-sky-500', mastodon: 'bg-purple-600' };
+        const platformIcons = { facebook: 'f', instagram: 'I', instagram_direct: 'I', twitter: '𝕏', linkedin: 'in', tiktok: '♪', youtube: '▶', pinterest: 'P', bluesky: '☁', mastodon: 'M' };
+        const plStatusDot = { published: 'background:#22c55e', failed: 'background:#ef4444', pending: 'background:#eab308', scheduled: 'background:#3b82f6', publishing: 'background:#f59e0b' };
+
+        container.innerHTML = '<div class="space-y-3">' + posts.map(p => {
+          const st = p.status || 'draft';
+          const date = p.scheduledFor ? new Date(p.scheduledFor).toLocaleString() : (p.createdAt ? new Date(p.createdAt).toLocaleString() : '');
+          const platforms = (p.platforms || []).map(pl => {
+            const name = typeof pl === 'string' ? pl : (pl.platform || '');
+            const plSt = (typeof pl === 'object' && pl.status) ? pl.status : '';
+            const plErr = (typeof pl === 'object' && pl.error) ? pl.error : '';
+            const tooltip = name + (plSt ? ' — ' + plSt : '') + (plErr ? ': ' + plErr : '');
+            const dotStyle = plSt && plStatusDot[plSt] ? plStatusDot[plSt] : '';
+            const dotHtml = dotStyle ? '<span style="position:absolute;bottom:-1px;right:-1px;width:8px;height:8px;border-radius:50%;border:1.5px solid white;' + dotStyle + '"></span>' : '';
+            return '<span class="inline-flex items-center justify-center w-6 h-6 rounded ' + (platformColors[name] || 'bg-gray-500') + ' text-white text-xs font-bold" style="position:relative" title="' + escHtml(tooltip) + '">' + (platformIcons[name] || '?') + dotHtml + '</span>';
+          }).join('');
+          return '<div class="border border-gray-200 rounded-xl p-4 bg-white">' +
+            '<div class="flex items-start justify-between gap-3">' +
+            '<div class="flex-1 min-w-0">' +
+            '<p class="text-sm text-gray-900 mb-2">' + escHtml((p.content || '').substring(0, 200)) + (p.content && p.content.length > 200 ? '…' : '') + '</p>' +
+            '<div class="flex items-center gap-2 flex-wrap">' +
+            '<span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium ' + (statusColors[st] || 'bg-gray-100 text-gray-600') + '">' + escHtml(st) + '</span>' +
+            (date ? '<span class="text-xs text-gray-400">' + escHtml(date) + '</span>' : '') +
+            '<div class="flex gap-1">' + platforms + '</div>' +
+            '</div></div>' +
+            '<button onclick="deletePost(\'' + p.id + '\')" class="flex-shrink-0 px-2 py-1 text-xs text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition" title="Delete">✕</button>' +
+            '</div></div>';
+        }).join('') + '</div>';
+      } catch (err) {
+        container.innerHTML = '<div class="bg-red-50 text-red-600 p-4 rounded-lg text-sm">' + escHtml(err.message) + '</div>';
+      }
+    }
+
+    async function deletePost(postId) {
+      if (!confirm('Delete this post? This cannot be undone.')) return;
+      try {
+        await apiFetch('DELETE', '/api/posts/' + postId);
+        loadPostsHistory();
+      } catch (err) {
+        alert('Failed to delete: ' + err.message);
+      }
+    }
+
+    /* ─── Manage Accounts ─── */
+    async function loadManageAccounts() {
+      const container = document.getElementById('manage-accounts-list');
+      container.innerHTML = '<div class="flex items-center justify-center py-12"><div class="spinner"></div></div>';
+      try {
+        const data = await apiFetch('GET', '/api/accounts');
+        const accounts = data.accounts || [];
+        if (!accounts.length) {
+          container.innerHTML = '<div class="text-center py-12"><svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg><p class="text-gray-500 text-sm">No accounts connected yet.</p><button onclick="switchTab(\'connect\')" class="mt-3 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition">Connect Account</button></div>';
+          return;
+        }
+        const platformColors = { facebook: 'bg-blue-600', instagram: 'bg-gradient-to-br from-purple-600 to-pink-500', twitter: 'bg-black', linkedin: 'bg-blue-700', tiktok: 'bg-black', youtube: 'bg-red-500', pinterest: 'bg-red-600', bluesky: 'bg-sky-500', mastodon: 'bg-purple-600' };
+        const platformIcons = { facebook: 'f', instagram: 'I', twitter: '𝕏', linkedin: 'in', tiktok: '♪', youtube: '▶', pinterest: 'P', bluesky: '☁', mastodon: 'M' };
+        container.innerHTML = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' + accounts.map(a =>
+          '<div class="border border-gray-200 rounded-xl p-4 flex items-center gap-3 bg-white">' +
+          '<div class="w-10 h-10 rounded-lg ' + (platformColors[a.platform] || 'bg-gray-500') + ' flex items-center justify-center text-white font-bold text-lg">' + (platformIcons[a.platform] || '?') + '</div>' +
+          '<div class="flex-1 min-w-0"><p class="text-sm font-semibold text-gray-900 truncate">' + escHtml(a.accountName || a.username || a.platform) + '</p>' +
+          '<p class="text-xs text-gray-500 capitalize">' + escHtml(a.platform) + (a.followersCount ? ' · ' + Number(a.followersCount).toLocaleString() + ' followers' : '') + '</p></div>' +
+          '<button onclick="disconnectAccount(\'' + a.id + '\')" class="flex-shrink-0 px-3 py-1.5 text-xs font-medium text-red-600 hover:text-white bg-red-50 hover:bg-red-600 border border-red-200 hover:border-red-600 rounded-lg transition" title="Disconnect">Disconnect</button>' +
+          '</div>'
+        ).join('') + '</div>';
+      } catch (err) {
+        container.innerHTML = '<div class="bg-red-50 text-red-600 p-4 rounded-lg text-sm">' + escHtml(err.message) + '</div>';
+      }
+    }
+
+    async function disconnectAccount(accountId) {
+      if (!confirm('Disconnect this account? This cannot be undone.')) return;
+      try {
+        await apiFetch('DELETE', '/api/accounts/' + accountId);
+        loadManageAccounts();
+      } catch (err) {
+        alert('Failed to disconnect: ' + err.message);
+      }
+    }
+
+    function escHtml(s) {
+      if (s == null) return '';
+      const d = document.createElement('div');
+      d.textContent = String(s);
+      return d.innerHTML;
     }
 
     /* ─── Boot ─── */
