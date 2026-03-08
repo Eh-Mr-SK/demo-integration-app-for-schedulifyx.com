@@ -1,0 +1,19 @@
+{
+  "name": "schedulifyx-demo-app",
+  "version": "1.0.0",
+  "description": "SchedulifyX Tier 1 (Embed) Demo App — shows how to integrate SchedulifyX embed components into your own application using the Developer API.",
+  "private": false,
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "multer": "^2.1.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

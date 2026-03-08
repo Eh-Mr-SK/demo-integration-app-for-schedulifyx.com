@@ -1,6 +1,4 @@
 node_modules/
 .env
 .sessions.json
-package-lock.json
 public/uploads/
-

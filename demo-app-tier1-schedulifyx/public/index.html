@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SchedulifyX — Tier 1 Embed Demo</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --danger: #dc2626;
+      --success: #16a34a;
+      --warning: #d97706;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-alt: #f1f5f9;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-secondary: #64748b;
+      --radius: 8px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── Header ─────────────────────────────────────── */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .header h1 span {
+      color: var(--primary);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-badge.connected {
+      background: #dcfce7;
+      color: var(--success);
+    }
+
+    .status-badge.disconnected {
+      background: #fee2e2;
+      color: var(--danger);
+    }
+
+    .status-badge.loading {
+      background: #fef3c7;
+      color: var(--warning);
+    }
+
+    .user-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .user-bar .avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    /* ── Layout ─────────────────────────────────────── */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 960px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ── Cards ──────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .card h2 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card+.card {
+      margin-top: 14px;
+    }
+
+    /* ── Buttons ─────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: #b91c1c;
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-outline:hover:not(:disabled) {
+      background: var(--surface-alt);
+    }
+
+    .btn-block {
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* ── Forms ──────────────────────────────────────── */
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 3px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.15s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .password-wrapper input {
+      padding-right: 36px;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-secondary);
+      padding: 2px;
+    }
+
+    /* ── Auth toggle ──────────────────────────────────── */
+    .auth-toggle {
+      display: flex;
+      gap: 0;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .auth-toggle button {
+      flex: 1;
+      padding: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: var(--surface);
+      color: var(--text-secondary);
+    }
+
+    .auth-toggle button.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .auth-toggle button:not(.active):hover {
+      background: var(--surface-alt);
+    }
+
+    /* ── Auth page (centered) ────────────────────────── */
+    .auth-page {
+      max-width: 420px;
+      margin: 60px auto;
+      padding: 0 24px;
+    }
+
+    .auth-page .logo {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .auth-page .logo h1 {
+      font-size: 28px;
+    }
+
+    .auth-page .logo p {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    /* ── Dashboard ────────────────────────────────────── */
+    .dashboard {
+      display: none;
+    }
+
+    .dashboard.visible {
+      display: block;
+    }
+
+    /* ── Sidebar nav ─────────────────────────────────── */
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 14px;
+    }
+
+    .sidebar-nav button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-secondary);
+      text-align: left;
+      transition: all 0.15s;
+      width: 100%;
+    }
+
+    .sidebar-nav button:hover {
+      background: var(--surface-alt);
+      color: var(--text);
+    }
+
+    .sidebar-nav button.active {
+      background: #dbeafe;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .sidebar-nav button .icon {
+      font-size: 16px;
+      width: 22px;
+      text-align: center;
+    }
+
+    /* ── Platform buttons ─────────────────────────────── */
+    .platform-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .platform-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      background: var(--surface);
+      transition: all 0.15s;
+    }
+
+    .platform-btn:hover {
+      border-color: var(--primary);
+      background: #eff6ff;
+    }
+
+    .platform-btn .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .platform-btn .badge {
+      font-size: 9px;
+      padding: 1px 5px;
+      border-radius: 8px;
+      background: #dbeafe;
+      color: var(--primary);
+      margin-left: auto;
+    }
+
+    /* ── Account item ────────────────────────────────── */
+    .account-item {
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+
+    .account-item .platform-icon {
+      font-size: 16px;
+      margin-right: 8px;
+    }
+
+    .account-item .account-name {
+      font-weight: 500;
+    }
+
+    .account-item .platform-label {
+      color: var(--text-secondary);
+      font-size: 11px;
+      margin-left: 6px;
+    }
+
+    /* ── Tabs ─────────────────────────────────────────── */
+    .tabs {
+      display: flex;
+      gap: 2px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0;
+      margin-bottom: 16px;
+      overflow-x: auto;
+    }
+
+    .tab {
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      white-space: nowrap;
+      transition: all 0.15s;
+      background: none;
+      border-left: none;
+      border-right: none;
+      border-top: none;
+    }
+
+    .tab:hover {
+      color: var(--text);
+    }
+
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    /* ── Embed area ──────────────────────────────────── */
+    .embed-container {
+      background: var(--surface-alt);
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      min-height: 480px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .embed-container.has-widget {
+      border-style: solid;
+      border-color: var(--border);
+      display: block;
+    }
+
+    .embed-placeholder {
+      text-align: center;
+      color: var(--text-secondary);
+    }
+
+    .embed-placeholder .icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .embed-placeholder h3 {
+      font-size: 16px;
+    }
+
+    .embed-placeholder p {
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    /* ── Console ──────────────────────────────────────── */
+    .console {
+      background: #1e293b;
+      border-radius: var(--radius);
+      padding: 12px;
+      max-height: 180px;
+      overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 11px;
+      line-height: 1.8;
+    }
+
+    .console-entry {
+      color: #94a3b8;
+    }
+
+    .console-entry .time {
+      color: #64748b;
+    }
+
+    .console-entry .type {
+      font-weight: 500;
+    }
+
+    .console-entry .type.info {
+      color: #60a5fa;
+    }
+
+    .console-entry .type.success {
+      color: #4ade80;
+    }
+
+    .console-entry .type.error {
+      color: #f87171;
+    }
+
+    .console-entry .type.event {
+      color: #c084fc;
+    }
+
+    .console-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .console-header h3 {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* ── Dev hints ────────────────────────────────────── */
+    .dev-hint {
+      background: #fefce8;
+      border: 1px solid #fef08a;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 11px;
+      color: #854d0e;
+      margin-top: 10px;
+    }
+
+    .dev-hint code {
+      background: #fef9c3;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-size: 10px;
+    }
+
+    /* ── Usage stats ─────────────────────────────────── */
+    .usage-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .usage-stat {
+      background: var(--surface-alt);
+      border-radius: 6px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .usage-stat .value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .usage-stat .label {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    /* ── Webhook item ────────────────────────────────── */
+    .webhook-item {
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .webhook-url {
+      font-size: 12px;
+      font-family: monospace;
+      color: var(--text-secondary);
+      max-width: 240px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .webhook-events {
+      font-size: 11px;
+      color: var(--primary);
+    }
+
+    .text-sm {
+      font-size: 13px;
+    }
+
+    .text-muted {
+      color: var(--text-secondary);
+    }
+
+    .mt-8 {
+      margin-top: 8px;
+    }
+
+    .mt-12 {
+      margin-top: 12px;
+    }
+
+    .mt-16 {
+      margin-top: 16px;
+    }
+
+    .mb-8 {
+      margin-bottom: 8px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 24px 16px;
+      color: var(--text-secondary);
+    }
+
+    .empty-state .icon {
+      font-size: 36px;
+      margin-bottom: 8px;
+    }
+
+    .empty-state p {
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══ Header ═══ -->
+  <div class="header">
+    <h1><span>SchedulifyX</span> — Tier 1 Embed Demo</h1>
+    <div class="header-right">
+      <span id="statusBadge" class="status-badge loading">Connecting...</span>
+      <div id="headerUser" class="user-bar hidden">
+        <div class="avatar" id="headerAvatar">JS</div>
+        <span id="headerName">Jane Smith</span>
+        <button class="btn btn-outline btn-sm" onclick="logoutUser()">Sign Out</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- AUTH PAGE — shown before login                          -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div id="authPage" class="auth-page">
+    <div class="logo">
+      <h1><span style="color:var(--primary)">SchedulifyX</span> Demo</h1>
+      <p>White-label social scheduling embedded in your app</p>
+    </div>
+
+    <div class="card">
+      <div class="auth-toggle">
+        <button class="active" id="tabSignup" onclick="switchAuthMode('signup')">Sign Up</button>
+        <button id="tabLogin" onclick="switchAuthMode('login')">Log In</button>
+      </div>
+
+      <!-- SIGNUP -->
+      <form id="signupForm">
+        <div class="form-group">
+          <label for="signupName">Full Name</label>
+          <input type="text" id="signupName" placeholder="Jane Smith" required />
+        </div>
+        <div class="form-group">
+          <label for="signupEmail">Email Address</label>
+          <input type="email" id="signupEmail" placeholder="jane@company.com" required />
+        </div>
+        <div class="form-group">
+          <label for="signupPassword">Password</label>
+          <div class="password-wrapper">
+            <input type="password" id="signupPassword" placeholder="Min 6 characters" required minlength="6" />
+            <button type="button" class="password-toggle" onclick="togglePw('signupPassword',this)">&#128065;</button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="signupBtn">Create Account</button>
+      </form>
+
+      <!-- LOGIN (hidden) -->
+      <form id="loginForm" style="display:none">
+        <div class="form-group">
+          <label for="loginEmail">Email Address</label>
+          <input type="email" id="loginEmail" placeholder="jane@company.com" required />
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <div class="password-wrapper">
+            <input type="password" id="loginPassword" placeholder="Your password" required />
+            <button type="button" class="password-toggle" onclick="togglePw('loginPassword',this)">&#128065;</button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Log In</button>
+      </form>
+
+      <div class="dev-hint">
+        <strong>How it works:</strong> Signup calls <code>POST /tenants</code> on your server, which creates a
+        SchedulifyX tenant for the user. Login retrieves the tenant and generates a <code>client token</code> for
+        embeds.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- DASHBOARD — shown after login                           -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div id="dashboard" class="dashboard">
+    <div class="container">
+      <div class="grid">
+
+        <!-- ═══ Sidebar ═══ -->
+        <div>
+          <div class="card" style="padding: 12px">
+            <nav class="sidebar-nav" id="sidebarNav">
+              <button class="active" data-page="components"><span class="icon">&#128230;</span> Components</button>
+              <button data-page="accounts"><span class="icon">&#128279;</span> Accounts</button>
+              <button data-page="posts"><span class="icon">&#128196;</span> Posts</button>
+              <button data-page="analytics"><span class="icon">&#128200;</span> Analytics</button>
+              <button data-page="webhooks"><span class="icon">&#128276;</span> Webhooks</button>
+              <button data-page="usage"><span class="icon">&#128202;</span> API Usage</button>
+            </nav>
+          </div>
+
+          <!-- Quick account status -->
+          <div class="card mt-8" id="accountSummaryCard">
+            <h2>Connected Accounts</h2>
+            <div id="accountSummary">
+              <p class="text-sm text-muted">Loading...</p>
+            </div>
+            <button class="btn btn-outline btn-sm btn-block mt-8" onclick="navigateTo('accounts')">Manage
+              Accounts</button>
+          </div>
+        </div>
+
+        <!-- ═══ Main Area ═══ -->
+        <div>
+
+          <!-- PAGE: Components -->
+          <div class="page" id="page-components">
+            <div class="card">
+              <h2>Embed Components</h2>
+              <div class="tabs" id="componentTabs">
+                <button class="tab active" data-component="post-creator">Post Creator</button>
+                <button class="tab" data-component="accounts">Accounts</button>
+                <button class="tab" data-component="analytics">Analytics</button>
+              </div>
+              <p class="text-sm text-muted mb-8" id="componentDesc">
+                Create, schedule, and publish posts across all connected social accounts.
+              </p>
+              <div class="embed-container" id="embedArea">
+                <div class="embed-placeholder">
+                  <div class="icon">&#9203;</div>
+                  <h3>Loading component...</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PAGE: Accounts -->
+          <div class="page hidden" id="page-accounts">
+            <div class="card">
+              <h2>Connect Social Accounts</h2>
+              <p class="text-sm text-muted mb-8">Connect your social media accounts to start scheduling and publishing
+                posts.</p>
+              <div class="platform-grid">
+                <button class="platform-btn" onclick="connectPlatform('facebook')"><span class="dot"
+                    style="background:#1877F2"></span> Facebook</button>
+                <button class="platform-btn" onclick="connectPlatform('instagram')"><span class="dot"
+                    style="background:#E4405F"></span> Instagram <span class="badge"
+                    style="background:#1877F2;color:white">via FB</span></button>
+                <button class="platform-btn" onclick="connectPlatform('instagram_direct')"><span class="dot"
+                    style="background:#E4405F"></span> Instagram <span class="badge">Direct</span></button>
+                <button class="platform-btn" onclick="connectPlatform('twitter')"><span class="dot"
+                    style="background:#000"></span> X (Twitter)</button>
+                <button class="platform-btn" onclick="connectPlatform('linkedin')"><span class="dot"
+                    style="background:#0A66C2"></span> LinkedIn</button>
+                <button class="platform-btn" onclick="connectPlatform('pinterest')"><span class="dot"
+                    style="background:#E60023"></span> Pinterest</button>
+                <button class="platform-btn" onclick="connectPlatform('tiktok')"><span class="dot"
+                    style="background:#000"></span> TikTok</button>
+                <button class="platform-btn" onclick="connectPlatform('youtube')"><span class="dot"
+                    style="background:#FF0000"></span> YouTube</button>
+                <button class="platform-btn" onclick="connectPlatform('bluesky')"><span class="dot"
+                    style="background:#0085FF"></span> Bluesky <span class="badge">Direct</span></button>
+                <button class="platform-btn" onclick="connectPlatform('mastodon')"><span class="dot"
+                    style="background:#6364FF"></span> Mastodon <span class="badge">Direct</span></button>
+              </div>
+              <div class="dev-hint mt-8">
+                <strong>API:</strong> OAuth platforms use <code>GET /tenants/:id/connect/:platform</code> (returns
+                redirect URL).
+                Instagram has two modes: <code>instagram</code> (via Facebook) and <code>instagram_direct</code>
+                (Instagram Login API).
+                Bluesky uses <code>POST /connect/bluesky</code>. Mastodon uses <code>POST /connect/mastodon</code>.
+              </div>
+            </div>
+            <div class="card mt-12">
+              <h2>Connected Accounts</h2>
+              <div id="accountList">
+                <div class="empty-state">
+                  <div class="icon">&#128279;</div>
+                  <p>No accounts connected yet.</p>
+                </div>
+              </div>
+              <div class="dev-hint mt-8">
+                <strong>Tier 1 (Embed):</strong> Components available: <code>post-creator</code>, <code>accounts</code>,
+                and
+                <code>analytics</code>. Engagement components (inbox, comments, mentions) require Tier 3.
+              </div>
+            </div>
+          </div>
+
+          <!-- PAGE: Posts -->
+          <div class="page hidden" id="page-posts">
+            <div class="card">
+              <h2>Post Creator &amp; Tracking</h2>
+              <p class="text-sm text-muted mb-8">Create, schedule, and track posts — all through the embedded component.
+              </p>
+              <div class="embed-container" id="postsEmbed">
+                <div class="embed-placeholder">
+                  <div class="icon">&#128196;</div>
+                  <h3>Loading post creator...</h3>
+                </div>
+              </div>
+              <div class="dev-hint mt-8">
+                <strong>Tier 1 (Embed):</strong> All post operations (create, schedule, publish, track) are handled by
+                the
+                embedded <code>post-creator</code> component. No REST API calls needed — the component communicates
+                directly
+                with SchedulifyX via client tokens.
+              </div>
+            </div>
+          </div>
+
+          <!-- PAGE: Analytics -->
+          <div class="page hidden" id="page-analytics">
+            <div class="card">
+              <h2>Analytics Dashboard</h2>
+              <p class="text-sm text-muted mb-8">Engagement, reach, and performance metrics — powered by the embedded
+                analytics component.</p>
+              <div class="embed-container" id="analyticsEmbed">
+                <div class="embed-placeholder">
+                  <div class="icon">&#128200;</div>
+                  <h3>Loading analytics widget...</h3>
+                </div>
+              </div>
+              <div class="dev-hint mt-8">
+                <strong>Tier 1 (Embed):</strong> Analytics data is rendered by the embedded <code>analytics</code>
+                component. No REST API calls needed — the component fetches data directly via client tokens.
+              </div>
+            </div>
+          </div>
+
+          <!-- PAGE: Webhooks -->
+          <div class="page hidden" id="page-webhooks">
+            <div class="card">
+              <h2>Webhooks</h2>
+              <p class="text-sm text-muted mb-8">Get notified when events happen &mdash; posts published, accounts
+                connected, etc.</p>
+              <form id="webhookForm" style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+                <div class="form-group" style="flex:1;min-width:200px;margin-bottom:0">
+                  <label for="webhookUrl">Endpoint URL</label>
+                  <input type="url" id="webhookUrl" placeholder="https://your-server.com/webhooks" required />
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm" style="height:36px">+ Add Webhook</button>
+              </form>
+              <div class="dev-hint mt-8">
+                <strong>API:</strong> <code>POST /webhooks</code> creates a webhook. Events:
+                <code>post.published</code>, <code>account.connected</code>, <code>account.disconnected</code>, etc.
+              </div>
+            </div>
+            <div class="card mt-12">
+              <h2>Active Webhooks</h2>
+              <div id="webhookList">
+                <div class="empty-state">
+                  <div class="icon">&#128276;</div>
+                  <p>No webhooks configured.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PAGE: Usage -->
+          <div class="page hidden" id="page-usage">
+            <div class="card">
+              <h2>API Usage &amp; Limits</h2>
+              <div id="usageStats" class="usage-grid">
+                <div class="usage-stat">
+                  <div class="value">&mdash;</div>
+                  <div class="label">Requests Today</div>
+                </div>
+                <div class="usage-stat">
+                  <div class="value">&mdash;</div>
+                  <div class="label">Monthly Usage</div>
+                </div>
+                <div class="usage-stat">
+                  <div class="value">&mdash;</div>
+                  <div class="label">Social Sets</div>
+                </div>
+                <div class="usage-stat">
+                  <div class="value">&mdash;</div>
+                  <div class="label">Rate Limit</div>
+                </div>
+              </div>
+              <button class="btn btn-outline btn-sm mt-12" onclick="loadUsage()">&#8635; Refresh</button>
+              <div class="dev-hint mt-8">
+                <strong>API:</strong> <code>GET /usage</code> returns current consumption. Rate limit headers
+                (<code>X-RateLimit-Remaining</code>, <code>X-Monthly-Used</code>) are in every response.
+              </div>
+            </div>
+          </div>
+
+          <!-- Developer Console (always visible) -->
+          <div class="card mt-12">
+            <div class="console-header">
+              <h3>Developer Console</h3>
+              <button class="btn btn-outline btn-sm" onclick="clearConsole()">Clear</button>
+            </div>
+            <div class="console" id="eventConsole">
+              <div class="console-entry"><span class="time">[--:--:--]</span> <span class="type info">INFO</span>
+                Waiting for events...</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SchedulifyX Embed SDK ═══ -->
+  <script src="https://components.schedulifyx.com/sdk.js"></script>
+
+  <script>
+    // ═══ STATE ═══
+    var tenants = [];
+    var activeTenant = null;
+    var activeComponent = 'post-creator';
+    var activePage = 'components';
+    var clientToken = null;
+    var sdkInstance = null;
+    var currentAccounts = [];
+    var currentWebhooks = [];
+
+
+
+    // ═══ SESSION — persisted in localStorage ═══
+    var SESSION_KEY = 'sfx_demo_session';
+    var USERS_KEY = 'sfx_demo_users';
+
+    function getLocalUsers() {
+      try { return JSON.parse(localStorage.getItem(USERS_KEY) || '{}'); } catch (e) { return {}; }
+    }
+    function saveLocalUsers(users) {
+      try { localStorage.setItem(USERS_KEY, JSON.stringify(users)); } catch (e) { }
+    }
+    function getSession() {
+      try {
+        var raw = localStorage.getItem(SESSION_KEY);
+        if (!raw) return null;
+        var s = JSON.parse(raw);
+        return s && s.tenantId ? s : null;
+      } catch (e) { return null; }
+    }
+    function setSession(tenantId, name, email) {
+      try {
+        localStorage.setItem(SESSION_KEY, JSON.stringify({ tenantId: tenantId, name: name, email: email, ts: Date.now() }));
+      } catch (e) { }
+    }
+    function clearSession() {
+      try { localStorage.removeItem(SESSION_KEY); } catch (e) { }
+    }
+
+    var COMP_DESC = {
+      'post-creator': 'Create, schedule, and publish posts across all connected social accounts.',
+      'accounts': 'Connect and manage social media accounts (Facebook, Instagram, X, LinkedIn, etc.).',
+      'analytics': 'View post performance, engagement metrics, and account analytics.',
+    };
+    var PLATFORM_ICONS = {
+      facebook: '\u{1F535}', instagram: '\u{1F4F8}', instagram_direct: '\u{1F4F8}', twitter: '\u2B1B', linkedin: '\u{1F537}',
+      pinterest: '\u{1F534}', tiktok: '\u{1F3B5}', youtube: '\u25B6\uFE0F', bluesky: '\u{1F98B}',
+      mastodon: '\u{1F418}', threads: '\u{1F4CE}', x: '\u2B1B',
+    };
+
+    // ═══ CONSOLE ═══
+    function log(type, message, data) {
+      var el = document.getElementById('eventConsole'); if (!el) return;
+      var now = new Date().toTimeString().slice(0, 8);
+      var entry = document.createElement('div'); entry.className = 'console-entry';
+      var d = data ? ' <span style="color:#94a3b8">' + JSON.stringify(data).slice(0, 100) + '</span>' : '';
+      entry.innerHTML = '<span class="time">[' + now + ']</span> <span class="type ' + type + '">' + type.toUpperCase() + '</span> ' + message + d;
+      el.appendChild(entry); el.scrollTop = el.scrollHeight;
+    }
+    function clearConsole() { document.getElementById('eventConsole').innerHTML = ''; log('info', 'Console cleared'); }
+
+    // ═══ API ═══
+    function api(method, path, body) {
+      var opts = { method: method, headers: { 'Content-Type': 'application/json' } };
+      if (body) opts.body = JSON.stringify(body);
+      return fetch('/api' + path, opts).then(function (res) {
+        return res.json().then(function (data) {
+          if (!res.ok) throw new Error(data.error || 'Request failed (' + res.status + ')');
+          return data;
+        });
+      });
+    }
+
+    // ═══ UI HELPERS ═══
+    function escHtml(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+    function getInitials(n) { return (n || '?').split(' ').map(function (w) { return w[0] }).join('').toUpperCase().slice(0, 2); }
+    function togglePw(id, btn) {
+      var inp = document.getElementById(id);
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      btn.innerHTML = inp.type === 'password' ? '&#128065;' : '&#128584;';
+    }
+    function showAuthPage() {
+      document.getElementById('authPage').style.display = '';
+      document.getElementById('dashboard').classList.remove('visible');
+      document.getElementById('headerUser').classList.add('hidden');
+    }
+    function showDashboard() {
+      document.getElementById('authPage').style.display = 'none';
+      document.getElementById('dashboard').classList.add('visible');
+      document.getElementById('headerUser').classList.remove('hidden');
+      document.getElementById('headerName').textContent = activeTenant ? activeTenant.name : '';
+      document.getElementById('headerAvatar').textContent = getInitials(activeTenant ? activeTenant.name : '');
+    }
+    function switchAuthMode(mode) {
+      document.getElementById('tabSignup').classList.toggle('active', mode === 'signup');
+      document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
+      document.getElementById('signupForm').style.display = mode === 'signup' ? '' : 'none';
+      document.getElementById('loginForm').style.display = mode === 'login' ? '' : 'none';
+    }
+
+    // ═══ CONNECTION CHECK ═══
+    function checkStatus() {
+      var badge = document.getElementById('statusBadge');
+      return api('GET', '/status').then(function (s) {
+        badge.textContent = '\u2713 Connected \u2014 ' + s.tier;
+        badge.className = 'status-badge connected';
+        log('success', 'API connected. Tier: ' + s.tier + ', Key: ' + s.keyName);
+        return s;
+      }).catch(function (err) {
+        badge.textContent = '\u2717 Disconnected';
+        badge.className = 'status-badge disconnected';
+        log('error', 'Connection failed: ' + err.message);
+        return null;
+      });
+    }
+
+    // ═══ TENANT LOADING ═══
+    function loadTenants() {
+      return api('GET', '/tenants').then(function (data) {
+        tenants = Array.isArray(data) ? data : (data && data.items ? data.items : []);
+        log('info', 'Loaded ' + tenants.length + ' user(s)');
+      }).catch(function (err) {
+        log('error', 'Failed to load users: ' + err.message);
+        tenants = [];
+      });
+    }
+
+    function renderExistingUsers() {
+      // Removed — no longer showing other tenants on auth page
+    }
+
+    // ═══ AUTH ═══
+    function handleSignup(e) {
+      e.preventDefault();
+      var btn = document.getElementById('signupBtn');
+      btn.disabled = true; btn.textContent = 'Creating account...';
+      var name = document.getElementById('signupName').value.trim();
+      var email = document.getElementById('signupEmail').value.trim();
+      var password = document.getElementById('signupPassword').value;
+      var localU = getLocalUsers();
+      if (localU[email]) { alert('Email already registered. Switch to Log In.'); btn.disabled = false; btn.textContent = 'Create Account'; return; }
+      log('info', 'Signing up: ' + name + ' (' + email + ')...');
+      api('POST', '/tenants', { externalId: email, name: name, email: email }).then(function (tenant) {
+        localU[email] = { password: password, tenantId: tenant.id, name: name };
+        saveLocalUsers(localU);
+        log('success', 'Account created! Tenant: ' + tenant.id);
+        document.getElementById('signupForm').reset();
+        return loadTenants().then(function () { return loginWithTenant(tenant.id); });
+      }).catch(function (err) {
+        log('error', 'Signup failed: ' + err.message); alert(err.message);
+      }).finally(function () { btn.disabled = false; btn.textContent = 'Create Account'; });
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      var btn = document.getElementById('loginBtn');
+      btn.disabled = true; btn.textContent = 'Logging in...';
+      var email = document.getElementById('loginEmail').value.trim();
+      var password = document.getElementById('loginPassword').value;
+      var localU = getLocalUsers();
+      var stored = localU[email];
+      if (!stored) { alert('No account found. Sign up first.'); btn.disabled = false; btn.textContent = 'Log In'; return; }
+      if (stored.password !== password) { alert('Incorrect password.'); btn.disabled = false; btn.textContent = 'Log In'; return; }
+      var tenant = tenants.find(function (t) { return t.id === stored.tenantId || t.externalId === email; });
+      if (!tenant) { alert('Tenant not found. Account may have been deleted.'); btn.disabled = false; btn.textContent = 'Log In'; return; }
+      document.getElementById('loginForm').reset();
+      loginWithTenant(tenant.id).finally(function () { btn.disabled = false; btn.textContent = 'Log In'; });
+    }
+
+    function quickLogin(tenantId) {
+      // Removed — existing accounts section removed
+    }
+
+    function loginWithTenant(tenantId) {
+      var tenant = tenants.find(function (t) { return t.id === tenantId; });
+      if (!tenant) { log('error', 'Tenant not found: ' + tenantId); showAuthPage(); return Promise.resolve(); }
+      activeTenant = tenant;
+      setSession(tenantId, tenant.name, tenant.email || tenant.externalId);
+      log('info', 'Logged in as: ' + tenant.name);
+      showDashboard();
+      log('info', 'Generating client token...');
+      return api('POST', '/tenants/' + tenantId + '/token').then(function (tokenData) {
+        clientToken = tokenData.token || tokenData.clientToken;
+        log('success', 'Token obtained (expires: ' + tokenData.expiresAt + ')');
+      }).catch(function (err) {
+        log('error', 'Token failed: ' + err.message); clientToken = null;
+      }).then(function () {
+        loadAccounts();
+        loadUsage();
+        navigateTo('components');
+      });
+    }
+
+    function logoutUser() {
+      log('info', 'Logged out: ' + (activeTenant ? activeTenant.name : ''));
+      activeTenant = null; clientToken = null;
+      clearSession(); clearEmbed(); showAuthPage();
+      loadTenants().then(function () { renderExistingUsers(); });
+    }
+
+    // ═══ NAVIGATION ═══
+    function navigateTo(page) {
+      activePage = page;
+      document.querySelectorAll('#sidebarNav button').forEach(function (b) {
+        b.classList.toggle('active', b.dataset.page === page);
+      });
+      document.querySelectorAll('.page').forEach(function (p) {
+        p.classList.toggle('hidden', p.id !== 'page-' + page);
+      });
+      if (page === 'components') embedComponent(activeComponent);
+      if (page === 'accounts') loadAccounts();
+      if (page === 'posts') embedPostsPage();
+      if (page === 'analytics') embedAnalyticsWidget();
+      if (page === 'webhooks') loadWebhooks();
+      if (page === 'usage') loadUsage();
+    }
+    document.getElementById('sidebarNav').addEventListener('click', function (e) {
+      var btn = e.target.closest('button');
+      if (btn && btn.dataset.page) navigateTo(btn.dataset.page);
+    });
+
+    // ═══ ACCOUNTS ═══
+    function loadAccounts() {
+      if (!activeTenant) return;
+      api('GET', '/tenants/' + activeTenant.id + '/accounts').then(function (data) {
+        currentAccounts = Array.isArray(data) ? data : (data && data.items ? data.items : []);
+        renderAccountList(); renderAccountSummary();
+      }).catch(function (err) {
+        log('error', 'Failed to load accounts: ' + err.message); currentAccounts = [];
+        renderAccountList(); renderAccountSummary();
+      });
+    }
+
+    function renderAccountSummary() {
+      var el = document.getElementById('accountSummary');
+      if (!currentAccounts.length) {
+        el.innerHTML = '<p class="text-sm text-muted">No accounts connected. <a href="#" onclick="navigateTo(\'accounts\');return false" style="color:var(--primary)">Connect one \u2192</a></p>';
+        return;
+      }
+      el.innerHTML = currentAccounts.map(function (a) {
+        return '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;font-size:12px">' +
+          '<span>' + (PLATFORM_ICONS[a.platform] || '\u{1F539}') + '</span>' +
+          '<span style="font-weight:500">' + escHtml(a.accountName || a.username || a.platform) + '</span></div>';
+      }).join('');
+    }
+
+    function renderAccountList() {
+      var el = document.getElementById('accountList');
+      if (!currentAccounts.length) {
+        el.innerHTML = '<div class="empty-state"><div class="icon">&#128279;</div><p>No accounts connected. Use the buttons above to connect.</p></div>';
+        return;
+      }
+      el.innerHTML = currentAccounts.map(function (a) {
+        return '<div class="account-item">' +
+          '<div style="display:flex;align-items:center">' +
+          '<span class="platform-icon">' + (PLATFORM_ICONS[a.platform] || '\u{1F539}') + '</span>' +
+          '<span class="account-name">' + escHtml(a.accountName || a.username || 'Connected') + '</span>' +
+          '<span class="platform-label">' + a.platform + '</span>' +
+          '</div>' +
+          '<button class="btn btn-danger btn-sm" onclick="disconnectAccount(\'' + a.id + '\',\'' + escHtml(a.accountName || a.platform) + '\')">Disconnect</button>' +
+          '</div>';
+      }).join('');
+    }
+
+    function connectPlatform(platform) {
+      if (!activeTenant) { alert('Please log in first.'); return; }
+      log('info', 'Connecting ' + platform + '...');
+
+      // Bluesky — direct login (handle + app password)
+      if (platform === 'bluesky') {
+        var handle = prompt('Enter your Bluesky handle (e.g. user.bsky.social):');
+        if (!handle) return;
+        var appPw = prompt('Enter your Bluesky App Password:');
+        if (!appPw) return;
+        api('POST', '/tenants/' + activeTenant.id + '/connect/bluesky', { handle: handle, appPassword: appPw })
+          .then(function () { log('success', 'Bluesky connected!'); loadAccounts(); })
+          .catch(function (err) { log('error', 'Bluesky failed: ' + err.message); alert(err.message); });
+        return;
+      }
+
+      // Mastodon — direct login (instance URL + access token)
+      if (platform === 'mastodon') {
+        var instance = prompt('Enter your Mastodon instance URL (e.g. mastodon.social):');
+        if (!instance) return;
+        var token = prompt('Enter your Mastodon access token:');
+        if (!token) return;
+        api('POST', '/tenants/' + activeTenant.id + '/connect/mastodon', { instanceUrl: instance, accessToken: token })
+          .then(function () { log('success', 'Mastodon connected!'); loadAccounts(); })
+          .catch(function (err) { log('error', 'Mastodon failed: ' + err.message); alert(err.message); });
+        return;
+      }
+
+      // All other platforms — OAuth redirect
+      api('GET', '/tenants/' + activeTenant.id + '/connect/' + platform).then(function (result) {
+        var url = result.url || result.connectUrl || result.authUrl;
+        if (url) { log('info', 'Opening OAuth for ' + platform + '...'); window.open(url, '_blank', 'width=800,height=750,left=' + ((screen.width - 800) / 2) + ',top=' + ((screen.height - 750) / 2)); }
+        else { log('error', 'No connect URL returned'); alert('Could not get connect URL for ' + platform); }
+      }).catch(function (err) { log('error', 'Connect ' + platform + ' failed: ' + err.message); alert(err.message); });
+    }
+
+    function disconnectAccount(accountId, name) {
+      if (!confirm('Disconnect ' + name + '?')) return;
+      api('DELETE', '/tenants/' + activeTenant.id + '/accounts/' + accountId)
+        .then(function () { log('success', 'Disconnected: ' + name); loadAccounts(); })
+        .catch(function (err) { log('error', 'Disconnect failed: ' + err.message); });
+    }
+
+    // ═══ POSTS (Embed Only — Tier 1) ═══
+    function embedPostsPage() {
+      if (!clientToken) return;
+      var area = document.getElementById('postsEmbed');
+      if (!area) return;
+      area.innerHTML = ''; area.className = 'embed-container has-widget';
+      log('info', 'Embedding <post-creator> in Posts page...');
+      try {
+        if (typeof SchedulifyX === 'undefined') { log('error', 'SDK not loaded'); return; }
+        var sdk = new SchedulifyX({ clientToken: clientToken, theme: 'light' });
+        sdk.embed('post-creator', {
+          container: area, theme: 'light', height: '500px',
+          on: {
+            ready: function () { log('success', '<post-creator> ready (Posts page)'); },
+            error: function (e) { log('error', 'Post creator error: ' + (e && e.message ? e.message : JSON.stringify(e))); },
+            'post-created': function (d) { log('event', 'post-created', d); },
+            'post-scheduled': function (d) { log('event', 'post-scheduled', d); },
+            'post-published': function (d) { log('event', 'post-published', d); },
+          },
+        });
+      } catch (err) {
+        area.className = 'embed-container';
+        area.innerHTML = '<div class="embed-placeholder"><div class="icon">&#128196;</div><h3>Post creator unavailable</h3><p>' + escHtml(err.message) + '</p></div>';
+      }
+    }
+
+    // ═══ ANALYTICS (Embed Only — Tier 1) ═══
+
+    function embedAnalyticsWidget() {
+      if (!clientToken) return;
+      var area = document.getElementById('analyticsEmbed');
+      area.innerHTML = ''; area.className = 'embed-container has-widget';
+      try {
+        if (typeof SchedulifyX === 'undefined') return;
+        var sdk = new SchedulifyX({ clientToken: clientToken, theme: 'light' });
+        sdk.embed('analytics', {
+          container: area, theme: 'light', height: '400px',
+          on: {
+            ready: function () { log('success', '<analytics> widget ready'); },
+            error: function (e) { log('error', 'Analytics widget error: ' + (e && e.message ? e.message : JSON.stringify(e))); },
+          },
+        });
+      } catch (err) {
+        area.className = 'embed-container';
+        area.innerHTML = '<div class="embed-placeholder"><div class="icon">&#128200;</div><h3>Analytics widget unavailable</h3><p>' + escHtml(err.message) + '</p></div>';
+      }
+    }
+
+    // ═══ WEBHOOKS ═══
+    function loadWebhooks() {
+      api('GET', '/webhooks').then(function (data) {
+        currentWebhooks = data; renderWebhookList();
+      }).catch(function (err) {
+        log('error', 'Failed to load webhooks: ' + err.message); currentWebhooks = [];
+        renderWebhookList();
+      });
+    }
+
+    function renderWebhookList() {
+      var el = document.getElementById('webhookList');
+      var hooks = Array.isArray(currentWebhooks) ? currentWebhooks : (currentWebhooks && currentWebhooks.items ? currentWebhooks.items : []);
+      if (!hooks.length) { el.innerHTML = '<div class="empty-state"><div class="icon">&#128276;</div><p>No webhooks configured.</p></div>'; return; }
+      el.innerHTML = hooks.map(function (w) {
+        return '<div class="webhook-item">' +
+          '<div><div class="webhook-url" title="' + escHtml(w.url) + '">' + escHtml(w.url) + '</div>' +
+          '<div class="webhook-events">' + (w.events || []).join(', ') + '</div></div>' +
+          '<button class="btn btn-danger btn-sm" onclick="deleteWebhook(\'' + w.id + '\')">Delete</button></div>';
+      }).join('');
+    }
+
+    function handleCreateWebhook(e) {
+      e.preventDefault();
+      var url = document.getElementById('webhookUrl').value.trim();
+      if (!url) return;
+      api('POST', '/webhooks', { name: 'Demo Webhook', url: url, events: ['post.published', 'account.connected', 'account.disconnected'] })
+        .then(function () { log('success', 'Webhook created: ' + url); document.getElementById('webhookUrl').value = ''; loadWebhooks(); })
+        .catch(function (err) { log('error', 'Create webhook failed: ' + err.message); alert(err.message); });
+    }
+
+    function deleteWebhook(id) {
+      if (!confirm('Delete this webhook?')) return;
+      api('DELETE', '/webhooks/' + id).then(function () { log('success', 'Webhook deleted'); loadWebhooks(); })
+        .catch(function (err) { log('error', 'Delete webhook failed: ' + err.message); });
+    }
+
+    // ═══ EMBED COMPONENTS ═══
+    function embedComponent(component) {
+      activeComponent = component;
+      document.querySelectorAll('#componentTabs .tab').forEach(function (t) { t.classList.toggle('active', t.dataset.component === component); });
+      document.getElementById('componentDesc').textContent = COMP_DESC[component] || '';
+      if (!activeTenant || !clientToken) { clearEmbed(); return; }
+
+      var area = document.getElementById('embedArea');
+      area.innerHTML = ''; area.className = 'embed-container has-widget';
+      log('info', 'Embedding <' + component + '>...');
+      try {
+        if (typeof SchedulifyX === 'undefined') { log('error', 'SDK not loaded'); return; }
+        if (sdkInstance) { try { sdkInstance.destroy(); } catch (e) { } sdkInstance = null; }
+        sdkInstance = new SchedulifyX({ clientToken: clientToken, theme: 'light' });
+        sdkInstance.embed(component, {
+          container: area, theme: 'light', height: '500px',
+          // Use local server for media uploads instead of SchedulifyX S3.
+          // In production, replace with your own S3/CDN upload logic.
+          onMediaUpload: function (file, callback) {
+            var formData = new FormData();
+            formData.append('file', file);
+            fetch('/api/upload', { method: 'POST', body: formData })
+              .then(function (res) { return res.json(); })
+              .then(function (data) {
+                if (data.error) throw new Error(data.error);
+                callback({ url: data.url, mediaType: data.mediaType, fileName: data.fileName, fileSize: data.fileSize });
+                log('info', 'File uploaded locally: ' + data.fileName);
+              })
+              .catch(function (err) {
+                log('error', 'Upload failed: ' + err.message);
+                callback({ error: err.message });
+              });
+          },
+          on: {
+            ready: function () { log('success', '<' + component + '> ready'); },
+            error: function (e) { log('error', 'Component error: ' + (e && e.message ? e.message : JSON.stringify(e))); },
+            'post-created': function (d) { log('event', 'post-created', d); },
+            'post-scheduled': function (d) { log('event', 'post-scheduled', d); },
+            'post-published': function (d) { log('event', 'post-published', d); },
+            'account-connected': function (d) { log('event', 'account-connected', d); loadAccounts(); },
+            'account-disconnected': function (d) { log('event', 'account-disconnected', d); loadAccounts(); },
+          },
+        });
+        log('info', 'Widget created');
+      } catch (err) {
+        log('error', 'Embed failed: ' + err.message);
+        area.innerHTML = '<div class="embed-placeholder"><div class="icon">&#9888;</div><h3>Failed to embed</h3><p>' + escHtml(err.message) + '</p></div>';
+        area.className = 'embed-container';
+      }
+    }
+
+    function clearEmbed() {
+      var area = document.getElementById('embedArea');
+      area.className = 'embed-container';
+      area.innerHTML = '<div class="embed-placeholder"><div class="icon">&#128230;</div><h3>Loading...</h3></div>';
+      if (sdkInstance) { try { sdkInstance.destroy(); } catch (e) { } sdkInstance = null; }
+    }
+
+    document.getElementById('componentTabs').addEventListener('click', function (e) {
+      var tab = e.target.closest('.tab');
+      if (tab) embedComponent(tab.dataset.component);
+    });
+
+    // ═══ USAGE ═══
+    function loadUsage() {
+      api('GET', '/usage').then(function (u) {
+        document.getElementById('usageStats').innerHTML =
+          '<div class="usage-stat"><div class="value">' + (u.requestsToday != null ? u.requestsToday : '\u2014') + '</div><div class="label">Requests Today</div></div>' +
+          '<div class="usage-stat"><div class="value">' + (u.monthlyRequests != null ? u.monthlyRequests : '\u2014') + ' / ' + (u.monthlyLimit || '\u221E') + '</div><div class="label">Monthly Usage</div></div>' +
+          '<div class="usage-stat"><div class="value">' + (u.socialSets ? u.socialSets.used : 0) + ' / ' + (u.socialSets ? u.socialSets.limit : '\u2014') + '</div><div class="label">Social Sets</div></div>' +
+          '<div class="usage-stat"><div class="value">' + (u.rateLimitPerMin || '\u2014') + '/min</div><div class="label">Rate Limit</div></div>';
+        log('info', 'Usage refreshed');
+      }).catch(function (err) { log('error', 'Usage failed: ' + err.message); });
+    }
+
+    // ═══ FORM HANDLERS ═══
+    document.getElementById('signupForm').addEventListener('submit', handleSignup);
+    document.getElementById('loginForm').addEventListener('submit', handleLogin);
+    document.getElementById('webhookForm').addEventListener('submit', handleCreateWebhook);
+
+    // ═══ INIT — restore session on refresh ═══
+    (function init() {
+      checkStatus().then(function (status) {
+        if (!status) { showAuthPage(); return; }
+        return loadTenants().then(function () {
+          // Try restore session from localStorage
+          var session = getSession();
+          if (session && session.tenantId) {
+            var tenant = tenants.find(function (t) { return t.id === session.tenantId; });
+            if (tenant) {
+              log('info', 'Restoring session for ' + tenant.name + '...');
+              return loginWithTenant(tenant.id);
+            }
+            // Tenant not found in list — maybe by externalId
+            if (session.email) {
+              tenant = tenants.find(function (t) { return t.externalId === session.email || t.email === session.email; });
+              if (tenant) {
+                log('info', 'Restoring session (by email) for ' + tenant.name + '...');
+                return loginWithTenant(tenant.id);
+              }
+            }
+            clearSession();
+            log('info', 'Saved session expired — please log in again');
+          }
+          renderExistingUsers();
+          showAuthPage();
+        });
+      }).catch(function (err) {
+        log('error', 'Init failed: ' + err.message);
+        showAuthPage();
+      });
+    })();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,2865 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SocialHub — Social Media Management</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface2: #334155;
+      --border: #475569;
+      --text: #f1f5f9;
+      --text2: #94a3b8;
+      --text3: #64748b;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --purple: #8b5cf6;
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    code,
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    pre {
+      background: #0c1222;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 0;
+    }
+
+    header .logo {
+      font-size: 22px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    header .logo span {
+      color: var(--primary);
+    }
+
+    header .subtitle {
+      color: var(--text2);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 13px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text3);
+    }
+
+    .status-dot.connected {
+      background: var(--success);
+    }
+
+    .status-dot.error {
+      background: var(--danger);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-info .user-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .user-info .user-email {
+      color: var(--text2);
+      font-size: 12px;
+    }
+
+    /* Navigation */
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+    }
+
+    .nav-tab {
+      padding: 12px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text2);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .nav-tab:hover {
+      color: var(--text);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    .nav-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .tier-label {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+      font-weight: 600;
+      vertical-align: middle;
+    }
+
+    .tier-2 {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--primary);
+    }
+
+    .tier-3 {
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--purple);
+    }
+
+    .nav-tab.locked {
+      opacity: 0.45;
+      cursor: not-allowed;
+      position: relative;
+    }
+
+    .nav-tab.locked::after {
+      content: '🔒';
+      font-size: 10px;
+      margin-left: 4px;
+    }
+
+    .nav-tab .tier-badge {
+      font-size: 9px;
+      padding: 1px 5px;
+      border-radius: 3px;
+      margin-left: 4px;
+      font-weight: 600;
+      vertical-align: middle;
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--purple);
+    }
+
+    /* Main */
+    main {
+      padding: 32px 0 64px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .section-desc {
+      color: var(--text2);
+      margin-bottom: 24px;
+      font-size: 15px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--text2);
+      margin-top: 4px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background: var(--border);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: white;
+    }
+
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text2);
+      margin-bottom: 6px;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+
+    .form-textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* Tables */
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 12px;
+      background: var(--bg);
+      color: var(--text2);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+    }
+
+    tr:hover td {
+      background: rgba(59, 130, 246, 0.03);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-published {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+    }
+
+    .badge-scheduled {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--primary);
+    }
+
+    .badge-draft {
+      background: rgba(148, 163, 184, 0.15);
+      color: var(--text2);
+    }
+
+    .badge-failed {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+    }
+
+    .badge-positive {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+    }
+
+    .badge-negative {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+    }
+
+    .badge-neutral {
+      background: rgba(148, 163, 184, 0.15);
+      color: var(--text2);
+    }
+
+    .badge-inbound {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--primary);
+    }
+
+    .badge-outbound {
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--purple);
+    }
+
+    /* Response viewer */
+    .response-viewer {
+      margin-top: 16px;
+    }
+
+    .response-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .response-status {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .response-status.ok {
+      color: var(--success);
+    }
+
+    .response-status.error {
+      color: var(--danger);
+    }
+
+    .response-body {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text2);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 40px;
+      color: var(--text3);
+    }
+
+    .empty-icon {
+      font-size: 36px;
+      margin-bottom: 12px;
+    }
+
+    /* Platform picker */
+    .platform-option {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .platform-option:hover {
+      border-color: var(--primary);
+      background: rgba(59, 130, 246, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .platform-option.connected {
+      border-color: var(--success);
+      background: rgba(34, 197, 94, 0.05);
+    }
+
+    .platform-option.connecting {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    /* Conversation thread */
+    .msg-list {
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 16px;
+      background: var(--bg);
+      border-radius: var(--radius);
+    }
+
+    .msg-bubble {
+      padding: 10px 14px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      max-width: 80%;
+      font-size: 14px;
+    }
+
+    .msg-inbound {
+      background: var(--surface2);
+      margin-right: auto;
+      border-bottom-left-radius: 4px;
+    }
+
+    .msg-outbound {
+      background: rgba(59, 130, 246, 0.2);
+      margin-left: auto;
+      border-bottom-right-radius: 4px;
+    }
+
+    .msg-meta {
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 4px;
+    }
+
+    /* Auth Page */
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    }
+
+    .auth-container {
+      width: 100%;
+      max-width: 420px;
+      padding: 20px;
+    }
+
+    .auth-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 40px 32px;
+    }
+
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .auth-logo .logo-text {
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .auth-logo .logo-text span {
+      color: var(--primary);
+    }
+
+    .auth-logo .logo-sub {
+      color: var(--text2);
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    .auth-tabs {
+      display: flex;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .auth-tab {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text2);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .auth-tab:hover {
+      color: var(--text);
+    }
+
+    .auth-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .auth-form {
+      display: none;
+    }
+
+    .auth-form.active {
+      display: block;
+    }
+
+    .auth-error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: var(--danger);
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .auth-success {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: var(--success);
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .auth-footer {
+      text-align: center;
+      margin-top: 24px;
+      color: var(--text3);
+      font-size: 12px;
+    }
+
+    .auth-footer a {
+      color: var(--primary);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- AUTH PAGE -->
+  <div id="authPage" class="auth-page">
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="auth-logo">
+          <div class="logo-text">� <span>SocialHub</span></div>
+          <div class="logo-sub">Sign in to manage your social media</div>
+        </div>
+
+        <div class="auth-tabs">
+          <div class="auth-tab active" data-auth="login" onclick="switchAuthTab('login')">Log In</div>
+          <div class="auth-tab" data-auth="signup" onclick="switchAuthTab('signup')">Sign Up</div>
+        </div>
+
+        <div id="authError" class="auth-error"></div>
+        <div id="authSuccess" class="auth-success"></div>
+
+        <!-- Login Form -->
+        <div class="auth-form active" id="loginForm">
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input class="form-input" type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input class="form-input" type="password" id="loginPassword" placeholder="Enter your password"
+              autocomplete="current-password">
+          </div>
+          <button class="btn btn-primary auth-btn" onclick="handleLogin()">Log In</button>
+        </div>
+
+        <!-- Signup Form -->
+        <div class="auth-form" id="signupForm">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input class="form-input" type="text" id="signupName" placeholder="John Smith" autocomplete="name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input class="form-input" type="email" id="signupEmail" placeholder="you@example.com" autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input class="form-input" type="password" id="signupPassword" placeholder="Min 6 characters"
+              autocomplete="new-password">
+          </div>
+          <button class="btn btn-primary auth-btn" onclick="handleSignup()">Create Account</button>
+        </div>
+
+        <div class="auth-footer">
+          Your data stays private and secure.<br>
+          Powered by <a href="https://schedulifyx.com" target="_blank">SchedulifyX</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP (hidden until authenticated) -->
+  <div id="appContainer" style="display:none">
+
+    <!-- Header -->
+    <header>
+      <div class="container">
+        <div class="header-row">
+          <div>
+            <div class="logo">� <span>SocialHub</span></div>
+            <div class="subtitle">Manage all your social media in one place <span
+                style="opacity:0.5;font-size:12px;margin-left:8px">Powered by SchedulifyX API</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px">
+            <div class="user-info" id="userInfo">
+              <div>
+                <div class="user-name" id="userName"></div>
+                <div class="user-email" id="userEmail"></div>
+              </div>
+            </div>
+            <button class="btn btn-sm" onclick="handleLogout()" style="font-size:12px">Logout</button>
+            <div id="connectionStatus" class="status-badge">
+              <div class="status-dot" id="statusDot"></div>
+              <span id="statusText">Connecting...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+      <div class="container">
+        <div class="nav-tabs">
+          <div class="nav-tab active" data-tab="overview">Dashboard</div>
+          <div class="nav-tab" data-tab="posts">Posts <span class="tier-badge"
+              style="background:rgba(59,130,246,0.15);color:var(--primary)">T2</span></div>
+          <div class="nav-tab" data-tab="accounts">Accounts</div>
+          <div class="nav-tab" data-tab="analytics">Analytics <span class="tier-badge"
+              style="background:rgba(59,130,246,0.15);color:var(--primary)">T2</span></div>
+          <div class="nav-tab" data-tab="comments">Comments <span class="tier-badge">T3</span></div>
+          <div class="nav-tab" data-tab="inbox">Inbox <span class="tier-badge">T3</span></div>
+          <div class="nav-tab" data-tab="mentions">Mentions <span class="tier-badge">T3</span></div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container">
+
+      <!-- DASHBOARD TAB -->
+      <div class="section active" id="tab-overview">
+        <h2 class="section-title">Dashboard</h2>
+        <p class="section-desc">Your social media management overview at a glance.</p>
+
+        <div class="card-grid" id="overviewCards">
+          <div class="stat-card">
+            <div class="stat-value" id="ov-accounts">—</div>
+            <div class="stat-label">Connected Accounts</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="ov-scheduled">—</div>
+            <div class="stat-label">Scheduled Posts</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="ov-published">—</div>
+            <div class="stat-label">Published Posts</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="ov-followers">—</div>
+            <div class="stat-label">Total Followers</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 20px">
+          <div class="card-title">🚀 Quick Actions</div>
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="switchToTab('posts'); showCreatePost()">✏️ Create Post</button>
+            <button class="btn" onclick="switchToTab('accounts')">🔗 Manage Accounts</button>
+            <button class="btn" onclick="switchToTab('analytics')">📊 View Analytics</button>
+            <button class="btn" onclick="switchToTab('inbox')">💬 Check Inbox</button>
+          </div>
+        </div>
+
+        <div id="dashboardActivity" class="card" style="margin-top:16px">
+          <div class="card-title">📋 Recent Posts</div>
+          <div id="recentPostsList">
+            <div class="empty">
+              <div class="empty-icon">📝</div>No recent posts yet. Create your first post!
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POSTS TAB -->
+      <div class="section" id="tab-posts">
+        <h2 class="section-title">Posts</h2>
+        <p class="section-desc">Create, schedule, and publish content across all your social accounts.</p>
+
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="showCreatePost()">✏️ New Post</button>
+          <button class="btn" onclick="loadPosts()" title="Refresh">🔄 Refresh</button>
+          <select class="form-select" style="width:auto" id="postStatusFilter" onchange="loadPosts()">
+            <option value="">All Statuses</option>
+            <option value="draft">Draft</option>
+            <option value="scheduled">Scheduled</option>
+            <option value="published">Published</option>
+            <option value="failed">Failed</option>
+          </select>
+        </div>
+
+        <!-- Create Post Form (hidden by default) -->
+        <div class="card" id="createPostForm" style="display:none">
+          <div class="card-title">Create New Post</div>
+          <div class="form-group">
+            <label class="form-label">Content</label>
+            <textarea class="form-textarea" id="newPostContent" placeholder="Write your post content..."></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Account (select from Accounts tab first)</label>
+              <select class="form-select" id="newPostAccount">
+                <option value="">Select account...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Mode</label>
+              <select class="form-select" id="newPostMode">
+                <option value="draft">Save as Draft</option>
+                <option value="publish">Publish Immediately</option>
+                <option value="schedule">Schedule</option>
+              </select>
+              <div id="publishWarning" style="display:none;font-size:11px;color:var(--warning,#f59e0b);margin-top:4px">
+                ⚠️ Publishing requires accounts with real OAuth tokens. Demo/test accounts may fail to publish — use
+                Draft mode to test the API without publishing.</div>
+            </div>
+          </div>
+          <div class="form-group" id="scheduleField" style="display:none">
+            <label class="form-label">Scheduled For (ISO 8601)</label>
+            <input class="form-input" type="datetime-local" id="newPostSchedule">
+          </div>
+
+          <!-- Platform-Specific Options (shown dynamically based on selected account) -->
+          <div id="platformOptions" style="display:none">
+            <!-- Pinterest Board -->
+            <div id="pinterestOptions" style="display:none" class="form-group">
+              <label class="form-label" style="color:#e60023;display:flex;align-items:center;gap:4px"><svg
+                  viewBox="0 0 24 24" width="16" height="16" fill="#E60023">
+                  <path
+                    d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12.017 24c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641 0 12.017 0z" />
+                </svg> Pinterest Options</label>
+              <div class="form-group">
+                <label class="form-label">Board <span style="color:var(--danger)">*</span></label>
+                <select class="form-select" id="pinterestBoard">
+                  <option value="">Loading boards...</option>
+                </select>
+                <div style="font-size:11px;color:var(--text3);margin-top:2px">Pinterest requires selecting a board to
+                  pin to.</div>
+              </div>
+            </div>
+
+            <!-- TikTok Options -->
+            <div id="tiktokOptions" style="display:none" class="form-group">
+              <label class="form-label" style="color:#25f4ee;display:flex;align-items:center;gap:4px"><svg
+                  viewBox="0 0 24 24" width="16" height="16" fill="#000000">
+                  <path
+                    d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
+                </svg> TikTok Options</label>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Privacy Level</label>
+                  <select class="form-select" id="tiktokPrivacy">
+                    <option value="PUBLIC_TO_EVERYONE">Public</option>
+                    <option value="MUTUAL_FOLLOW_FRIENDS">Mutual Follow Friends</option>
+                    <option value="FOLLOWER_OF_CREATOR">Followers Only</option>
+                    <option value="SELF_ONLY">Self Only</option>
+                  </select>
+                </div>
+              </div>
+              <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px">
+                <label style="font-size:13px;display:flex;align-items:center;gap:4px"><input type="checkbox"
+                    id="tiktokComments" checked> Allow Comments</label>
+                <label style="font-size:13px;display:flex;align-items:center;gap:4px"><input type="checkbox"
+                    id="tiktokDuet" checked> Allow Duet</label>
+                <label style="font-size:13px;display:flex;align-items:center;gap:4px"><input type="checkbox"
+                    id="tiktokStitch" checked> Allow Stitch</label>
+              </div>
+              <div id="tiktokCreatorStatus" style="font-size:11px;color:var(--text3);margin-top:4px"></div>
+            </div>
+
+            <!-- YouTube Options -->
+            <div id="youtubeOptions" style="display:none" class="form-group">
+              <label class="form-label" style="color:#ff0000;display:flex;align-items:center;gap:4px"><svg
+                  viewBox="0 0 24 24" width="16" height="16" fill="#FF0000">
+                  <path
+                    d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                </svg> YouTube Options</label>
+              <div class="form-row">
+                <div class="form-group" style="flex:2">
+                  <label class="form-label">Video Title</label>
+                  <input class="form-input" type="text" id="youtubeTitle" placeholder="Enter video title...">
+                </div>
+                <div class="form-group" style="flex:1">
+                  <label class="form-label">Privacy</label>
+                  <select class="form-select" id="youtubePrivacy">
+                    <option value="public">Public</option>
+                    <option value="unlisted">Unlisted</option>
+                    <option value="private">Private</option>
+                  </select>
+                </div>
+              </div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px">YouTube requires a video file. Image-only
+                posts are not supported.</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Media</label>
+
+            <!-- File Upload Zone -->
+            <div id="fileDropZone"
+              style="border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:10px"
+              onclick="document.getElementById('fileUploadInput').click()"
+              ondragover="event.preventDefault();this.style.borderColor='var(--primary)';this.style.background='rgba(99,102,241,0.05)'"
+              ondragleave="this.style.borderColor='var(--border)';this.style.background='transparent'"
+              ondrop="handleFileDrop(event)">
+              <div style="font-size:28px;margin-bottom:4px">📁</div>
+              <div style="font-size:13px;font-weight:500;color:var(--text1)">Drop files here or click to upload</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:4px">JPEG, PNG, GIF, WebP, MP4, MOV, WebM — up to
+                50 MB each</div>
+              <input type="file" id="fileUploadInput"
+                accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/quicktime,video/webm" multiple
+                style="display:none" onchange="handleFileSelect(this.files)">
+            </div>
+            <div id="fileUploadProgress" style="font-size:12px;color:var(--text3);margin-bottom:8px"></div>
+
+            <!-- OR: Paste URL -->
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <div style="flex:1;height:1px;background:var(--border)"></div>
+              <span style="font-size:11px;color:var(--text3);font-weight:500">OR paste a public URL</span>
+              <div style="flex:1;height:1px;background:var(--border)"></div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <input class="form-input" type="url" id="mediaUrlInput" placeholder="https://example.com/image.jpg"
+                style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addMediaUrl()}">
+              <button class="btn btn-primary" onclick="addMediaUrl()" style="white-space:nowrap">+ Add</button>
+            </div>
+            <div id="mediaPublicUrlWarning" style="color:var(--text3);font-size:11px;margin-top:4px">
+              <strong>For publishing:</strong> The API needs publicly reachable URLs. Set <code>PUBLIC_URL</code> in
+              <code>.env</code> to
+              your <a href="https://ngrok.com" target="_blank" style="color:var(--primary)">ngrok</a> or
+              <a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/"
+                target="_blank" style="color:var(--primary)">cloudflared</a>
+              tunnel URL (e.g. <code>PUBLIC_URL=https://xxxx.ngrok-free.app</code>). In production, use your own S3/CDN.
+            </div>
+            <div id="mediaPreviewList" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+            <div id="mediaUploadStatus" style="font-size:12px;color:var(--text3);margin-top:4px"></div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="createPost()">Create Post</button>
+            <button class="btn" onclick="document.getElementById('createPostForm').style.display='none'">Cancel</button>
+          </div>
+          <div id="createPostResult"></div>
+        </div>
+
+        <div id="postsTable">
+          <div class="empty">
+            <div class="empty-icon">📝</div>No posts yet. Create your first post to get started!
+          </div>
+        </div>
+      </div>
+
+      <!-- ACCOUNTS TAB -->
+      <div class="section" id="tab-accounts">
+        <h2 class="section-title">Connected Accounts</h2>
+        <p class="section-desc">Manage your social media accounts. Connect new platforms to start posting.</p>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="showConnectAccount()">➕ Connect Account</button>
+          <button class="btn" onclick="loadAccounts()" title="Refresh">🔄 Refresh</button>
+        </div>
+
+        <!-- Connect Account Panel (hidden by default) -->
+        <div class="card" id="connectAccountPanel" style="display:none">
+          <div class="card-title">Connect a Social Media Account</div>
+          <p style="color:var(--text2);font-size:14px;margin-bottom:16px">Select a platform to connect. You'll be
+            redirected to authorize access.</p>
+          <div class="card-grid" id="platformPicker">
+            <div class="platform-option" data-platform="facebook" onclick="connectPlatform('facebook')">
+              <div style="margin-bottom:8px"><svg viewBox="0 0 24 24" width="32" height="32" fill="#1877F2">
+                  <path
+                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                </svg></div>
+              <div style="font-weight:600">Facebook</div>
+              <div style="color:var(--text3);font-size:12px">Pages & profiles</div>
+            </div>
+            <div class="platform-option" data-platform="instagram" onclick="connectPlatform('instagram')">
+              <div style="margin-bottom:8px"><svg viewBox="0 0 24 24" width="32" height="32" fill="#E4405F">
+                  <path
+                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+                </svg></div>
+              <div style="font-weight:600">Instagram</div>
+              <div style="color:var(--text3);font-size:12px">Via Facebook (Business)</div>
+            </div>
+            <div class="platform-option" data-platform="instagram_direct" onclick="connectPlatform('instagram_direct')">
+              <div style="margin-bottom:8px"><svg viewBox="0 0 24 24" width="32" height="32" fill="#833AB4">
+                  <path
+                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+                </svg></div>
+              <div style="font-weight:600">Instagram Direct</div>
+              <div style="color:var(--text3);font-size:12px">Direct login (no Facebook)</div>
+            </div>
+            <div class="platform-option" data-platform="twitter" onclick="connectPlatform('twitter')">
+              <div style="margin-bottom:8px"><svg viewBox="0 0 24 24" width="32" height="32" fill="#000000">
+                  <path
+                    d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg></div>
+              <div style="font-weight:600">X / Twitter</div>
+              <div style="color:var(--text3);font-size:12px">Posts & threads</div>
+            </div>
+            <div class="platform-option" data-platform="linkedin" onclick="connectPlatform('linkedin')">
+              <div style="margin-bottom:8px"><svg viewBox="0 0 24 24" width="32" height="32" fill="#0A66C2">
+                  <path
+                    d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg></div>
+              <div style="font-weight:600">LinkedIn</div>
+              <div style="color:var(--text3);font-size:12px">Profiles & pages</div>
+            </div>
+            <div class="platform-option" data-platform="tiktok" onclick="connectPlatform('tiktok')">
+              <div style="margin-bottom:8px"><svg viewBox="0 0 24 24" width="32" height="32" fill="#000000">
+                  <path
+                    d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
+                </svg></div>
+              <div style="font-weight:600">TikTok</div>
+              <div style="color:var(--text3);font-size:12px">Video content</div>
+            </div>
+            <div class="platform-option" data-platform="youtube" onclick="connectPlatform('youtube')">
+              <div style="margin-bottom:8px"><svg viewBox="0 0 24 24" width="32" height="32" fill="#FF0000">
+                  <path
+                    d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                </svg></div>
+              <div style="font-weight:600">YouTube</div>
+              <div style="color:var(--text3);font-size:12px">Videos & shorts</div>
+            </div>
+            <div class="platform-option" data-platform="pinterest" onclick="connectPlatform('pinterest')">
+              <div style="margin-bottom:8px"><svg viewBox="0 0 24 24" width="32" height="32" fill="#E60023">
+                  <path
+                    d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12.017 24c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641 0 12.017 0z" />
+                </svg></div>
+              <div style="font-weight:600">Pinterest</div>
+              <div style="color:var(--text3);font-size:12px">Pins & boards</div>
+            </div>
+            <div class="platform-option" data-platform="threads" onclick="connectPlatform('threads')">
+              <div style="margin-bottom:8px"><svg viewBox="0 0 24 24" width="32" height="32" fill="#000000">
+                  <path
+                    d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.96-.065-1.17.408-2.243 1.33-3.023.812-.687 1.9-1.084 3.15-1.15.93-.048 1.795.027 2.577.225.015-.625-.005-1.2-.057-1.725-.185-1.836-.99-2.77-2.394-2.77-.903 0-1.63.31-2.1.896-.497.62-.72 1.403-.72 1.403l-1.946-.508s.339-1.16 1.066-2.006c.87-1.013 2.07-1.55 3.474-1.55 1.81 0 3.17.783 3.94 2.266.515.992.723 2.285.617 3.838-.012.176-.026.356-.043.54 1.05.56 1.865 1.41 2.362 2.477.72 1.542.82 4.107-1.245 6.15-1.768 1.749-3.9 2.531-6.918 2.556zM10.5 15.17c.15 0 .302-.007.458-.015 1.084-.058 2.636-.416 2.72-2.274a2.986 2.986 0 00-.015-.275c-.704-.168-1.478-.245-2.298-.198-.88.047-1.574.29-2.01.707-.524.499-.562 1.103-.538 1.538.042.72.547 1.47 1.683 1.47v.047z" />
+                </svg></div>
+              <div style="font-weight:600">Threads</div>
+              <div style="color:var(--text3);font-size:12px">Text posts</div>
+            </div>
+            <div class="platform-option" data-platform="bluesky" onclick="connectPlatform('bluesky')">
+              <div style="margin-bottom:8px"><svg viewBox="0 0 24 24" width="32" height="32" fill="#0085FF">
+                  <path
+                    d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479.785 2.627 3.6 3.476 6.158 3.13-4.304.643-8.505 2.313-5.462 8.092C3.994 26.108 11.2 21.186 12 14.38c.8 6.806 7.958 11.669 10.68 7.089 3.043-5.779-1.158-7.449-5.462-8.092 2.557.346 5.373-.503 6.158-3.13.246-.828.624-5.789.624-6.478 0-.69-.139-1.861-.902-2.206-.66-.298-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8z" />
+                </svg></div>
+              <div style="font-weight:600">Bluesky</div>
+              <div style="color:var(--text3);font-size:12px">App password login</div>
+            </div>
+            <div class="platform-option" data-platform="mastodon" onclick="connectPlatform('mastodon')">
+              <div style="margin-bottom:8px"><svg viewBox="0 0 24 24" width="32" height="32" fill="#6364FF">
+                  <path
+                    d="M23.268 5.313c-.35-2.578-2.617-4.61-5.304-5.004C17.51.242 15.792 0 11.813 0h-.03c-3.98 0-4.835.242-5.288.309C3.882.692 1.496 2.518.917 5.127.64 6.412.61 7.837.661 9.143c.074 1.874.088 3.745.26 5.611.118 1.24.325 2.47.62 3.68.55 2.237 2.777 4.098 4.96 4.857 2.336.792 4.849.923 7.256.38.265-.061.527-.132.786-.213.585-.184 1.27-.39 1.774-.753a.057.057 0 00.023-.043v-1.809a.052.052 0 00-.02-.041.053.053 0 00-.046-.01 20.282 20.282 0 01-4.709.547c-2.73 0-3.463-1.284-3.674-1.818a5.593 5.593 0 01-.319-1.433.053.053 0 01.066-.054 19.648 19.648 0 004.636.546h.357c1.555 0 3.122-.046 4.656-.247 1.894-.25 3.547-1.022 3.723-5.316.007-.174.018-1.822.018-2 0-.611.181-4.356-.065-5.89zM19.903 13h-2.58V7.876c0-1.26-.547-1.898-1.644-1.898-1.213 0-1.82.756-1.82 2.252v2.806h-2.565V8.23c0-1.496-.607-2.252-1.82-2.252-1.097 0-1.644.638-1.644 1.898V13H5.25V7.695c0-1.26.329-2.264.988-3.012.68-.748 1.568-1.132 2.668-1.132 1.273 0 2.238.487 2.87 1.46l.618 1.028.618-1.028c.632-.973 1.597-1.46 2.87-1.46 1.1 0 1.988.384 2.668 1.132.66.748.988 1.752.988 3.012V13z" />
+                </svg></div>
+              <div style="font-weight:600">Mastodon</div>
+              <div style="color:var(--text3);font-size:12px">Decentralized social</div>
+            </div>
+          </div>
+          <div id="connectResult" style="margin-top:16px"></div>
+          <div style="margin-top:12px">
+            <button class="btn"
+              onclick="document.getElementById('connectAccountPanel').style.display='none'">Cancel</button>
+          </div>
+        </div>
+
+        <div id="accountsTable">
+          <div class="empty">
+            <div class="empty-icon">🔗</div>No accounts connected yet.<br><span style="font-size:14px">Connect your
+              first social media account to get started.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANALYTICS TAB -->
+      <div class="section" id="tab-analytics">
+        <h2 class="section-title">Analytics</h2>
+        <p class="section-desc">Track your content performance and audience growth across all platforms.</p>
+
+        <div class="btn-group">
+          <button class="btn" onclick="loadAnalyticsOverview()" title="Refresh">🔄 Refresh</button>
+          <button class="btn" onclick="loadPostAnalytics()">📈 Post Performance</button>
+        </div>
+
+        <div id="analyticsOverview"></div>
+        <div id="postAnalytics" style="margin-top:20px"></div>
+      </div>
+
+      <!-- COMMENTS TAB -->
+      <div class="section" id="tab-comments">
+        <h2 class="section-title">Comments</h2>
+        <p class="section-desc">View and reply to comments from your audience across all platforms.</p>
+
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="syncComments()" id="syncCommentsBtn">⬇️ Sync from Platforms</button>
+          <button class="btn" onclick="loadComments()" title="Refresh">🔄 Refresh</button>
+          <button class="btn" onclick="loadCommentStats()">📊 Stats</button>
+        </div>
+
+        <div id="commentStats"></div>
+        <div id="commentsTable">
+          <div class="empty">
+            <div class="empty-icon">💬</div>No comments yet. Comments will appear here once your posts get engagement.
+          </div>
+        </div>
+      </div>
+
+      <!-- INBOX TAB -->
+      <div class="section" id="tab-inbox">
+        <h2 class="section-title">Inbox</h2>
+        <p class="section-desc">All your direct messages and conversations in one unified inbox.</p>
+
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="syncInbox()" id="syncInboxBtn">⬇️ Sync from Platforms</button>
+          <button class="btn" onclick="loadConversations()" title="Refresh">🔄 Refresh</button>
+          <button class="btn" onclick="loadInboxStats()">📊 Stats</button>
+        </div>
+
+        <div id="inboxStats"></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px">
+          <div id="conversationsList">
+            <div class="empty">
+              <div class="empty-icon">📨</div>No conversations yet. Messages will appear here once you receive DMs.
+            </div>
+          </div>
+          <div id="conversationMessages" class="card" style="display:none">
+            <div class="card-title" id="convTitle">Messages</div>
+            <div class="msg-list" id="msgList"></div>
+            <div style="margin-top:12px; display:flex; gap:8px">
+              <input class="form-input" id="replyInput" placeholder="Type a reply...">
+              <button class="btn btn-primary" onclick="sendInboxReply()">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MENTIONS TAB -->
+      <div class="section" id="tab-mentions">
+        <h2 class="section-title">Mentions</h2>
+        <p class="section-desc">Track when people mention your brand across social media.</p>
+
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="syncMentions()" id="syncMentionsBtn">⬇️ Sync from Platforms</button>
+          <button class="btn" onclick="loadMentions()" title="Refresh">🔄 Refresh</button>
+          <button class="btn" onclick="loadMentionStats()">📊 Stats</button>
+        </div>
+
+        <div id="mentionStats"></div>
+        <div id="mentionsTable">
+          <div class="empty">
+            <div class="empty-icon">📢</div>No mentions found yet. Mentions will appear here when people tag your
+            accounts.
+          </div>
+        </div>
+      </div>
+
+  </div>
+
+  </main>
+  </div><!-- /appContainer -->
+
+  <script>
+    // ═══════════════════════════════════════════════════════════════════════
+    // AUTH STATE
+    // ═══════════════════════════════════════════════════════════════════════
+    let authToken = localStorage.getItem('schedulifyx_token');
+    let currentTenant = JSON.parse(localStorage.getItem('schedulifyx_tenant') || 'null');
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // AUTH UI
+    // ═══════════════════════════════════════════════════════════════════════
+    function switchAuthTab(tab) {
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+      document.querySelector(`.auth-tab[data-auth="${tab}"]`).classList.add('active');
+      document.getElementById(tab === 'login' ? 'loginForm' : 'signupForm').classList.add('active');
+      hideAuthMessages();
+    }
+
+    function showAuthError(msg) {
+      const el = document.getElementById('authError');
+      el.textContent = msg;
+      el.style.display = 'block';
+      document.getElementById('authSuccess').style.display = 'none';
+    }
+
+    function showAuthSuccess(msg) {
+      const el = document.getElementById('authSuccess');
+      el.textContent = msg;
+      el.style.display = 'block';
+      document.getElementById('authError').style.display = 'none';
+    }
+
+    function hideAuthMessages() {
+      document.getElementById('authError').style.display = 'none';
+      document.getElementById('authSuccess').style.display = 'none';
+    }
+
+    async function handleSignup() {
+      hideAuthMessages();
+      const name = document.getElementById('signupName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value;
+      if (!name || !email || !password) return showAuthError('Name, email, and password are required.');
+      if (password.length < 6) return showAuthError('Password must be at least 6 characters.');
+
+      try {
+        const res = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password }),
+        });
+        const data = await res.json();
+        if (!res.ok) return showAuthError(data.error || 'Signup failed');
+
+        authToken = data.token;
+        currentTenant = data.tenant;
+        localStorage.setItem('schedulifyx_token', authToken);
+        localStorage.setItem('schedulifyx_tenant', JSON.stringify(currentTenant));
+        showApp();
+      } catch (e) {
+        showAuthError('Network error: ' + e.message);
+      }
+    }
+
+    async function handleLogin() {
+      hideAuthMessages();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      if (!email || !password) return showAuthError('Email and password are required.');
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+        if (!res.ok) return showAuthError(data.error || 'Login failed');
+
+        authToken = data.token;
+        currentTenant = data.tenant;
+        localStorage.setItem('schedulifyx_token', authToken);
+        localStorage.setItem('schedulifyx_tenant', JSON.stringify(currentTenant));
+        showApp();
+      } catch (e) {
+        showAuthError('Network error: ' + e.message);
+      }
+    }
+
+    function handleLogout() {
+      fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + authToken },
+      }).catch(() => { });
+      authToken = null;
+      currentTenant = null;
+      localStorage.removeItem('schedulifyx_token');
+      localStorage.removeItem('schedulifyx_tenant');
+      document.getElementById('authPage').style.display = 'flex';
+      document.getElementById('appContainer').style.display = 'none';
+    }
+
+    function showApp() {
+      document.getElementById('authPage').style.display = 'none';
+      document.getElementById('appContainer').style.display = 'block';
+      document.getElementById('userName').textContent = currentTenant?.name || '';
+      document.getElementById('userEmail').textContent = currentTenant?.email || '';
+
+      // Fetch API tier info, update tab access, and preload accounts for post dropdown
+      fetchApiTier().then(() => {
+        if (hasTier2Access()) loadAccounts();
+      });
+
+      // Check for OAuth callback params
+      const urlParams = new URLSearchParams(window.location.search);
+      const oauthSuccess = urlParams.get('success');
+      const oauthError = urlParams.get('error');
+      const oauthPlatform = urlParams.get('platform');
+
+      if (oauthSuccess === 'true' || oauthError) {
+        // Clean up URL (remove callback params)
+        window.history.replaceState({}, '', '/');
+        // Switch to Accounts tab
+        switchToTab('accounts');
+        // Show result message after accounts load
+        setTimeout(() => {
+          const el = document.getElementById('connectResult');
+          const panel = document.getElementById('connectAccountPanel');
+          if (panel) panel.style.display = 'block';
+          if (oauthSuccess === 'true') {
+            if (el) el.innerHTML = `<div class="card" style="background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.3);color:var(--success)">
+          ✅ ${oauthPlatform ? oauthPlatform.charAt(0).toUpperCase() + oauthPlatform.slice(1) : 'Account'} connected successfully!</div>`;
+          } else if (oauthError) {
+            if (el) el.innerHTML = `<div class="card" style="background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:var(--danger)">
+          ❌ Connection failed: ${oauthError}</div>`;
+          }
+        }, 500);
+      } else {
+        loadDashboard();
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // APP STATE
+    // ═══════════════════════════════════════════════════════════════════════
+    let accounts = [];
+    let currentConvId = null;
+    let apiTier = 'full'; // default, will be updated from API info
+    let apiPlanSlug = '';
+    let isDevPlan = false;
+    let engagementAccess = { comments: false, inbox: false, mentions: false };
+    let activeEngagementAddons = [];
+
+    // Tier 3 tabs that require 'full' tier + engagement add-on
+    const TIER3_TABS = ['comments', 'inbox', 'mentions'];
+    // Tier 2 tabs that require 'publishing' or 'full' tier (REST data endpoints)
+    const TIER2_TABS = ['posts', 'analytics'];
+    const TIER_LEVELS = { embed: 0, publishing: 1, full: 2 };
+
+    function hasTier2Access() {
+      return isDevPlan || (TIER_LEVELS[apiTier] || 0) >= 1;
+    }
+
+    function updateTabAccess() {
+      const hasTier3 = apiTier === 'full';
+      const hasTier2 = hasTier2Access();
+
+      // ── Tier 2 tab gating (Posts, Analytics) ──
+      TIER2_TABS.forEach(tabName => {
+        const tabEl = document.querySelector(`.nav-tab[data-tab="${tabName}"]`);
+        if (tabEl) {
+          if (hasTier2) {
+            tabEl.classList.remove('locked');
+          } else {
+            tabEl.classList.add('locked');
+          }
+        }
+        const section = document.getElementById('tab-' + tabName);
+        if (section) {
+          const existingLock = section.querySelector('.tier-lock-message');
+          if (existingLock) existingLock.remove();
+        }
+        if (section && !hasTier2) {
+          const lockDiv = document.createElement('div');
+          lockDiv.className = 'tier-lock-message';
+          lockDiv.innerHTML = `<div class="card" style="text-align:center;padding:40px 20px">
+          <div style="font-size:48px;margin-bottom:16px">🔒</div>
+          <h3 style="margin-bottom:8px">Tier 2 (Publishing) Required</h3>
+          <p style="color:var(--text3);margin-bottom:16px">The <strong>${tabName.charAt(0).toUpperCase() + tabName.slice(1)}</strong> REST API requires <strong>Tier 2 (Publishing)</strong> or higher.<br>Your API key is currently on the <strong>"${apiTier}"</strong> tier.</p>
+          <p style="font-size:13px;color:var(--text3)">Apply for Tier 2 at <a href="https://app.schedulifyx.com/settings?tab=api-keys" target="_blank" style="color:var(--primary)">Settings → API Keys</a></p>
+          <div style="margin-top:16px;padding:12px;background:rgba(59,130,246,0.1);border-radius:var(--radius);font-size:12px;color:var(--primary)">
+            <strong>Tier 1 (Embed):</strong> UI components only &nbsp;|&nbsp;
+            <strong>Tier 2 (Publishing):</strong> REST API for posts, accounts, analytics &nbsp;|&nbsp;
+            <strong>Tier 3 (Full):</strong> + engagement (comments, inbox, mentions)
+          </div>
+        </div>`;
+          section.prepend(lockDiv);
+        }
+      });
+
+      // ── Accounts tab: Tier 1 can still connect accounts via tenant endpoints,
+      // but can't list account data via REST. Show connect UI + info banner. ──
+      const accountsSection = document.getElementById('tab-accounts');
+      if (accountsSection) {
+        const existingBanner = accountsSection.querySelector('.tier-info-banner');
+        if (existingBanner) existingBanner.remove();
+        if (!hasTier2) {
+          const banner = document.createElement('div');
+          banner.className = 'tier-info-banner';
+          banner.innerHTML = `<div class="card" style="padding:16px;margin-bottom:16px;border-left:4px solid var(--primary);background:rgba(59,130,246,0.05)">
+            <strong style="color:var(--primary)">ℹ️ Tier 1 (Embed) Key</strong>
+            <p style="color:var(--text3);margin:8px 0 0;font-size:13px">
+              Your API key is Tier 1 — you can <strong>connect accounts</strong> via OAuth below, but listing account data via REST API requires Tier 2+.<br>
+              Use the <strong>Tier 1 demo app</strong> (embed components) to manage posts, or upgrade to Tier 2 for full REST API access.
+            </p>
+          </div>`;
+          // Insert after the section title area
+          const firstChild = accountsSection.querySelector('.card-grid, .empty, .loading, #accountsTable');
+          if (firstChild) {
+            firstChild.parentNode.insertBefore(banner, firstChild);
+          } else {
+            accountsSection.prepend(banner);
+          }
+        }
+      }
+
+      // ── Tier 3 tab gating (Comments, Inbox, Mentions) ──
+      TIER3_TABS.forEach(tabName => {
+        const tabEl = document.querySelector(`.nav-tab[data-tab="${tabName}"]`);
+        // For Tier 3 tabs: need both tier=full AND (dev plan OR matching add-on)
+        const hasAccess = hasTier3 && (isDevPlan || engagementAccess[tabName]);
+        if (tabEl) {
+          if (hasAccess) {
+            tabEl.classList.remove('locked');
+          } else {
+            tabEl.classList.add('locked');
+          }
+        }
+        // Update the tab content with lock message if needed
+        const section = document.getElementById('tab-' + tabName);
+        // Remove any existing lock message first
+        if (section) {
+          const existingLock = section.querySelector('.tier-lock-message');
+          if (existingLock) existingLock.remove();
+        }
+        if (section && !hasAccess) {
+          const lockDiv = document.createElement('div');
+          lockDiv.className = 'tier-lock-message';
+          let lockReason = '';
+          if (!hasTier3) {
+            lockReason = `<p style="color:var(--text3);margin-bottom:16px">The ${tabName.charAt(0).toUpperCase() + tabName.slice(1)} feature requires <strong>Full Engagement API (Tier 3)</strong> access.<br>Your API key is currently on the <strong>"${apiTier}"</strong> tier.</p>
+            <p style="font-size:13px;color:var(--text3)">Step 1: Apply for Tier 3 ($49/yr contract + admin approval) at <a href="https://app.schedulifyx.com/settings?tab=api-keys" target="_blank" style="color:var(--primary)">Settings → API Keys</a></p>
+            <p style="font-size:13px;color:var(--text3)">Step 2: Purchase an engagement add-on ($5–$12/mo) at <a href="https://app.schedulifyx.com/pricing?tab=addons" target="_blank" style="color:var(--primary)">Pricing → Add-ons</a></p>`;
+          } else {
+            // Has tier 3 but missing add-on
+            const addonNames = { comments: 'Comments API Access', inbox: 'Inbox/Messages API Access', mentions: 'Mentions & UGC API Access' };
+            lockReason = `<p style="color:var(--text3);margin-bottom:16px">You have Tier 3 (Full Engagement) access, but the <strong>${addonNames[tabName] || tabName}</strong> add-on is not active.</p>
+            <p style="font-size:13px;color:var(--text3)">Purchase the add-on ($5/mo) or the <strong>Engagement Bundle</strong> ($12/mo, all 3 features) at <a href="https://app.schedulifyx.com/pricing?tab=addons" target="_blank" style="color:var(--primary)">Pricing → Add-ons</a></p>
+            <p style="font-size:12px;color:var(--text3);margin-top:8px">Active add-ons: ${activeEngagementAddons.length > 0 ? activeEngagementAddons.join(', ') : 'none'}</p>`;
+          }
+          lockDiv.innerHTML = `<div class="card" style="text-align:center;padding:40px 20px">
+          <div style="font-size:48px;margin-bottom:16px">🔒</div>
+          <h3 style="margin-bottom:8px">${!hasTier3 ? 'Tier 3 (Full Engagement) Required' : 'Engagement Add-on Required'}</h3>
+          ${lockReason}
+          <div style="margin-top:16px;padding:12px;background:rgba(139,92,246,0.1);border-radius:var(--radius);font-size:12px;color:var(--purple)">
+            <strong>Tier 3 access:</strong> $49/yr contract + admin approval &nbsp;|&nbsp;
+            <strong>Add-ons:</strong> Comments $5/mo · Inbox $5/mo · Mentions $5/mo · Bundle $12/mo &nbsp;|&nbsp;
+            <strong>Dev plan ($1/mo):</strong> Full access, no contract or add-ons needed
+          </div>
+        </div>`;
+          section.prepend(lockDiv);
+        }
+      });
+    }
+
+    async function fetchApiTier() {
+      try {
+        const res = await fetch('/api/info');
+        const info = await res.json();
+        const tier = info.data?.key?.accessTier || info.data?.tiers?.current || 'embed';
+        apiTier = tier;
+        // Extract plan and add-on info from the new info endpoint fields
+        apiPlanSlug = info.data?.plan?.slug || '';
+        isDevPlan = info.data?.plan?.isDevPlan === true;
+        activeEngagementAddons = info.data?.engagementAccess?.activeAddons || [];
+        engagementAccess = {
+          comments: info.data?.engagementAccess?.comments?.accessible === true,
+          inbox: info.data?.engagementAccess?.inbox?.accessible === true,
+          mentions: info.data?.engagementAccess?.mentions?.accessible === true,
+        };
+        updateTabAccess();
+        return tier;
+      } catch (e) {
+        console.warn('Could not fetch API tier info:', e.message);
+        return apiTier;
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // UTILITIES (all requests include auth token)
+    // ═══════════════════════════════════════════════════════════════════════
+    function authHeaders(extra = {}) {
+      return { 'Authorization': 'Bearer ' + authToken, 'Content-Type': 'application/json', ...extra };
+    }
+
+    /**
+     * Checks an API response for errors (status >= 400) and returns error HTML.
+     * Returns null if no error. Used by engagement feature loaders.
+     */
+    function renderApiError(res, featureName) {
+      const apiStatus = res.status || 200;
+      if (apiStatus < 400) return null;
+
+      const err = res.data?.error || {};
+      const errMsg = err.message || (typeof err === 'string' ? err : 'Unknown error');
+      const errCode = err.code || '';
+
+      let upgradeHtml = '';
+      if (errCode === 'insufficient_tier') {
+        upgradeHtml = `<div style="margin-top:12px;padding:12px;background:rgba(139,92,246,0.1);border-radius:var(--radius);font-size:12px;text-align:left">
+          <strong style="color:var(--purple)">How to get access:</strong><br>
+          <span style="color:var(--text2)">1. Apply for Tier 3 at <a href="https://app.schedulifyx.com/settings?tab=api-keys" target="_blank" style="color:var(--primary)">Settings → API Keys</a></span><br>
+          <span style="color:var(--text2)">2. Purchase an engagement add-on at <a href="https://app.schedulifyx.com/pricing?tab=addons" target="_blank" style="color:var(--primary)">Pricing → Add-ons</a></span>
+        </div>`;
+      } else if (errCode === 'engagement_addon_required') {
+        const requiredAddon = err.requiredAddon || featureName;
+        upgradeHtml = `<div style="margin-top:12px;padding:12px;background:rgba(245,158,11,0.1);border-radius:var(--radius);font-size:12px;text-align:left">
+          <strong style="color:var(--warning)">Add-on required:</strong><br>
+          <span style="color:var(--text2)">You have Tier 3 access but the <strong>${featureName}</strong> add-on is not active.</span><br>
+          <span style="color:var(--text2)">Purchase it ($5/mo) or the Engagement Bundle ($12/mo) at <a href="https://app.schedulifyx.com/pricing?tab=addons" target="_blank" style="color:var(--primary)">Pricing → Add-ons</a></span>
+          ${err.activeAddons ? `<br><span style="color:var(--text3);font-size:11px">Active add-ons: ${err.activeAddons.length ? err.activeAddons.join(', ') : 'none'}</span>` : ''}
+        </div>`;
+      }
+
+      return `<div class="card" style="text-align:center;padding:32px 20px">
+        <div style="font-size:40px;margin-bottom:12px">${errCode === 'engagement_addon_required' ? '🔓' : '🔒'}</div>
+        <h3 style="margin-bottom:8px;color:var(--danger)">API Error ${apiStatus}</h3>
+        <p style="color:var(--text2);font-size:13px;max-width:600px;margin:0 auto">${errMsg}</p>
+        ${upgradeHtml}
+        <details style="margin-top:16px;text-align:left"><summary style="cursor:pointer;font-size:12px;color:var(--primary)">View raw API response</summary>
+        <pre style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-top:8px;font-size:11px;max-height:200px;overflow:auto">${JSON.stringify(res.data, null, 2)}</pre></details>
+      </div>`;
+    }
+
+    async function api(url) {
+      const res = await fetch(url, { headers: authHeaders() });
+      if (res.status === 401) { handleLogout(); throw new Error('Session expired'); }
+      const ct = res.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) {
+        const text = await res.text();
+        throw new Error(`Server returned non-JSON response (HTTP ${res.status})`);
+      }
+      return res.json();
+    }
+
+    async function apiPost(url, body) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify(body),
+      });
+      if (res.status === 401) { handleLogout(); throw new Error('Session expired'); }
+      const ct = res.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) {
+        const text = await res.text();
+        throw new Error(`Server returned non-JSON response (HTTP ${res.status})`);
+      }
+      return res.json();
+    }
+
+    async function apiPatch(url, body) {
+      const res = await fetch(url, {
+        method: 'PATCH',
+        headers: authHeaders(),
+        body: JSON.stringify(body),
+      });
+      if (res.status === 401) { handleLogout(); throw new Error('Session expired'); }
+      const ct = res.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) {
+        const text = await res.text();
+        throw new Error(`Server returned non-JSON response (HTTP ${res.status})`);
+      }
+      return res.json();
+    }
+
+    async function apiDelete(url) {
+      const res = await fetch(url, { method: 'DELETE', headers: authHeaders() });
+      if (res.status === 401) { handleLogout(); throw new Error('Session expired'); }
+      const ct = res.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) {
+        const text = await res.text();
+        throw new Error(`Server returned non-JSON response (HTTP ${res.status})`);
+      }
+      return res.json();
+    }
+
+    function badge(status) {
+      const cls = {
+        published: 'badge-published', scheduled: 'badge-scheduled',
+        draft: 'badge-draft', failed: 'badge-failed',
+        positive: 'badge-positive', negative: 'badge-negative', neutral: 'badge-neutral',
+        inbound: 'badge-inbound', outbound: 'badge-outbound',
+      }[status] || '';
+      return `<span class="badge ${cls}">${status}</span>`;
+    }
+
+    function fmtDate(d) {
+      if (!d) return '—';
+      return new Date(d).toLocaleString();
+    }
+
+    function truncate(s, n = 80) {
+      if (!s) return '—';
+      return s.length > n ? s.slice(0, n) + '…' : s;
+    }
+
+    function platformIcon(p) {
+      const svgs = {
+        facebook: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#1877F2" style="vertical-align:middle;margin-right:4px"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>',
+        instagram: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#E4405F" style="vertical-align:middle;margin-right:4px"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>',
+        instagram_business: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#E4405F" style="vertical-align:middle;margin-right:4px"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>',
+        instagram_direct: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#833AB4" style="vertical-align:middle;margin-right:4px"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>',
+        x: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#000" style="vertical-align:middle;margin-right:4px"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
+        twitter: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#000" style="vertical-align:middle;margin-right:4px"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
+        linkedin: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#0A66C2" style="vertical-align:middle;margin-right:4px"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>',
+        linkedin_business: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#0A66C2" style="vertical-align:middle;margin-right:4px"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>',
+        threads: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#000" style="vertical-align:middle;margin-right:4px"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.96-.065-1.17.408-2.243 1.33-3.023.812-.687 1.9-1.084 3.15-1.15.93-.048 1.795.027 2.577.225.015-.625-.005-1.2-.057-1.725-.185-1.836-.99-2.77-2.394-2.77-.903 0-1.63.31-2.1.896-.497.62-.72 1.403-.72 1.403l-1.946-.508s.339-1.16 1.066-2.006c.87-1.013 2.07-1.55 3.474-1.55 1.81 0 3.17.783 3.94 2.266.515.992.723 2.285.617 3.838-.012.176-.026.356-.043.54 1.05.56 1.865 1.41 2.362 2.477.72 1.542.82 4.107-1.245 6.15-1.768 1.749-3.9 2.531-6.918 2.556zM10.5 15.17c.15 0 .302-.007.458-.015 1.084-.058 2.636-.416 2.72-2.274a2.986 2.986 0 00-.015-.275c-.704-.168-1.478-.245-2.298-.198-.88.047-1.574.29-2.01.707-.524.499-.562 1.103-.538 1.538.042.72.547 1.47 1.683 1.47v.047z"/></svg>',
+        pinterest: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#E60023" style="vertical-align:middle;margin-right:4px"><path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12.017 24c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641 0 12.017 0z"/></svg>',
+        tiktok: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#000" style="vertical-align:middle;margin-right:4px"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>',
+        youtube: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#FF0000" style="vertical-align:middle;margin-right:4px"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>',
+        bluesky: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#0085FF" style="vertical-align:middle;margin-right:4px"><path d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479.785 2.627 3.6 3.476 6.158 3.13-4.304.643-8.505 2.313-5.462 8.092C3.994 26.108 11.2 21.186 12 14.38c.8 6.806 7.958 11.669 10.68 7.089 3.043-5.779-1.158-7.449-5.462-8.092 2.557.346 5.373-.503 6.158-3.13.246-.828.624-5.789.624-6.478 0-.69-.139-1.861-.902-2.206-.66-.298-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8z"/></svg>',
+        mastodon: '<svg viewBox="0 0 24 24" width="14" height="14" fill="#6364FF" style="vertical-align:middle;margin-right:4px"><path d="M23.268 5.313c-.35-2.578-2.617-4.61-5.304-5.004C17.51.242 15.792 0 11.813 0h-.03c-3.98 0-4.835.242-5.288.309C3.882.692 1.496 2.518.917 5.127.64 6.412.61 7.837.661 9.143c.074 1.874.088 3.745.26 5.611.118 1.24.325 2.47.62 3.68.55 2.237 2.777 4.098 4.96 4.857 2.336.792 4.849.923 7.256.38.265-.061.527-.132.786-.213.585-.184 1.27-.39 1.774-.753a.057.057 0 00.023-.043v-1.809a.052.052 0 00-.02-.041.053.053 0 00-.046-.01 20.282 20.282 0 01-4.709.547c-2.73 0-3.463-1.284-3.674-1.818a5.593 5.593 0 01-.319-1.433.053.053 0 01.066-.054 19.648 19.648 0 004.636.546h.357c1.555 0 3.122-.046 4.656-.247 1.894-.25 3.547-1.022 3.723-5.316.007-.174.018-1.822.018-2 0-.611.181-4.356-.065-5.89zM19.903 13h-2.58V7.876c0-1.26-.547-1.898-1.644-1.898-1.213 0-1.82.756-1.82 2.252v2.806h-2.565V8.23c0-1.496-.607-2.252-1.82-2.252-1.097 0-1.644.638-1.644 1.898V13H5.25V7.695c0-1.26.329-2.264.988-3.012.68-.748 1.568-1.132 2.668-1.132 1.273 0 2.238.487 2.87 1.46l.618 1.028.618-1.028c.632-.973 1.597-1.46 2.87-1.46 1.1 0 1.988.384 2.668 1.132.66.748.988 1.752.988 3.012V13z"/></svg>',
+      };
+      return (svgs[p] || '<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#6B7280;vertical-align:middle;margin-right:4px"></span>') + ' ' + (p || 'unknown');
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // TAB NAVIGATION (auto-loads data when switching tabs)
+    // ═══════════════════════════════════════════════════════════════════════
+    const tabLoaders = {
+      overview: () => loadDashboard(),
+      posts: () => loadPosts(),
+      accounts: () => loadAccounts(),
+      analytics: () => { loadAnalyticsOverview(); loadPostAnalytics(); },
+      comments: () => { loadComments(); loadCommentStats(); },
+      inbox: () => loadConversations(),
+      mentions: () => { loadMentions(); loadMentionStats(); },
+    };
+
+    function switchToTab(tabName) {
+      // Block access to Tier 2 tabs if API key is embed (Tier 1)
+      const hasTier2 = hasTier2Access();
+      if (TIER2_TABS.includes(tabName) && !hasTier2) {
+        // Show the tab section (with lock message) but don't load data
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        const tabEl = document.querySelector(`.nav-tab[data-tab="${tabName}"]`);
+        if (tabEl) tabEl.classList.add('active');
+        document.getElementById('tab-' + tabName).classList.add('active');
+        return;
+      }
+
+      // Block access to Tier 3 tabs if API key doesn't have full tier + add-on
+      const hasTier3 = apiTier === 'full';
+      const hasAccess = hasTier3 && (isDevPlan || engagementAccess[tabName]);
+      if (TIER3_TABS.includes(tabName) && !hasAccess) {
+        // Still show the tab section (with lock message) but don't load data
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        const tabEl = document.querySelector(`.nav-tab[data-tab="${tabName}"]`);
+        if (tabEl) tabEl.classList.add('active');
+        document.getElementById('tab-' + tabName).classList.add('active');
+        return;
+      }
+
+      // Accounts tab: allow tab switch for Tier 1 (can still connect accounts via tenant endpoints)
+      // but loadAccounts will show empty + info banner
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      const tabEl = document.querySelector(`.nav-tab[data-tab="${tabName}"]`);
+      if (tabEl) tabEl.classList.add('active');
+      document.getElementById('tab-' + tabName).classList.add('active');
+      if (tabLoaders[tabName]) tabLoaders[tabName]();
+    }
+
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        switchToTab(tab.dataset.tab);
+      });
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // DASHBOARD
+    // ═══════════════════════════════════════════════════════════════════════
+    async function loadDashboard() {
+      try {
+        document.getElementById('statusDot').classList.add('connected');
+        document.getElementById('statusText').textContent = 'Connected — ' + (currentTenant?.name || 'active');
+
+        // If Tier 1, show tier info on dashboard instead of analytics stats
+        if (!hasTier2Access()) {
+          document.getElementById('ov-accounts').textContent = '—';
+          document.getElementById('ov-scheduled').textContent = '—';
+          document.getElementById('ov-published').textContent = '—';
+          document.getElementById('ov-followers').textContent = '—';
+          document.getElementById('recentPostsList').innerHTML = `
+            <div class="card" style="text-align:center;padding:30px 20px;border-left:4px solid var(--primary)">
+              <h3 style="margin-bottom:8px">API Key: Tier 1 (Embed)</h3>
+              <p style="color:var(--text3);margin-bottom:12px">Dashboard stats, posts, and analytics require <strong>Tier 2 (Publishing)</strong> or higher.<br>
+              You can still <strong>connect accounts</strong> and manage tenants with Tier 1.</p>
+              <div style="padding:12px;background:rgba(59,130,246,0.1);border-radius:var(--radius);font-size:12px;color:var(--primary)">
+                <strong>Tier 1:</strong> Embed components + account connect &nbsp;|&nbsp;
+                <strong>Tier 2:</strong> + REST API (posts, accounts, analytics) &nbsp;|&nbsp;
+                <strong>Tier 3:</strong> + engagement (comments, inbox, mentions)
+              </div>
+            </div>`;
+          return;
+        }
+
+        // Load analytics overview for stats
+        const analyticsRes = await api('/api/analytics/overview');
+        const d = analyticsRes.data?.data || {};
+
+        document.getElementById('ov-accounts').textContent = d.connectedAccounts || 0;
+        document.getElementById('ov-scheduled').textContent = d.scheduledPosts || 0;
+        document.getElementById('ov-published').textContent = d.publishedPosts || 0;
+        document.getElementById('ov-followers').textContent = (d.totalFollowers || 0).toLocaleString();
+
+        // Load recent posts for activity
+        try {
+          const postsRes = await api('/api/posts?limit=5');
+          const posts = postsRes.data?.data || [];
+          const el = document.getElementById('recentPostsList');
+          if (posts.length === 0) {
+            el.innerHTML = '<div class="empty" style="padding:20px"><div class="empty-icon">📝</div>No posts yet. Create your first post!</div>';
+          } else {
+            let html = '<div class="table-wrap"><table><thead><tr><th>Status</th><th>Content</th><th>Platform</th><th>Date</th></tr></thead><tbody>';
+            for (const p of posts) {
+              const platforms = (p.platforms || []).map(pl => platformIcon(pl.platform)).join(' ');
+              html += `<tr>
+            <td>${badge(p.status)}</td>
+            <td>${truncate(p.content, 50)}</td>
+            <td>${platforms || '—'}</td>
+            <td>${fmtDate(p.scheduledFor || p.createdAt)}</td>
+          </tr>`;
+            }
+            html += '</tbody></table></div>';
+            el.innerHTML = html;
+          }
+        } catch (e) {
+          document.getElementById('recentPostsList').innerHTML = '<div class="empty" style="padding:20px"><div class="empty-icon">📝</div>No recent posts</div>';
+        }
+      } catch (e) {
+        document.getElementById('statusDot').classList.add('error');
+        document.getElementById('statusText').textContent = 'Connection issue';
+        document.getElementById('ov-accounts').textContent = '—';
+        document.getElementById('ov-scheduled').textContent = '—';
+        document.getElementById('ov-published').textContent = '—';
+        document.getElementById('ov-followers').textContent = '—';
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // POSTS
+    // ═══════════════════════════════════════════════════════════════════════
+    async function loadPosts() {
+      const el = document.getElementById('postsTable');
+      el.innerHTML = '<div class="loading"><div class="spinner"></div> Loading...</div>';
+      try {
+        const status = document.getElementById('postStatusFilter').value;
+        const qs = status ? `?status=${status}&limit=20` : '?limit=20';
+        const res = await api('/api/posts' + qs);
+        const posts = res.data?.data || [];
+        const pag = res.data?.pagination || {};
+
+        if (posts.length === 0) {
+          el.innerHTML = '<div class="empty"><div class="empty-icon">📝</div>No posts yet. Create your first post!</div>';
+          return;
+        }
+
+        let html = `<div class="card"><p style="color:var(--text2);font-size:13px;margin-bottom:12px">Total: ${pag.total} | Showing: ${posts.length} | Offset: ${pag.offset}</p><div class="table-wrap"><table>
+      <thead><tr><th>Status</th><th>Content</th><th>Platforms</th><th>Scheduled</th><th>Created</th><th>Actions</th></tr></thead><tbody>`;
+
+        for (const p of posts) {
+          const platforms = (p.platforms || []).map(pl => platformIcon(pl.platform)).join(' ');
+          const failedPlatforms = (p.platforms || []).filter(pl => pl.status === 'failed');
+          const failReason = failedPlatforms.length ? failedPlatforms.map(pl => pl.error || 'Publishing failed (account may not have valid OAuth tokens)').join('; ') : '';
+          html += `<tr>
+        <td>${badge(p.status)}${p.status === 'failed' && failReason ? `<div style="font-size:10px;color:var(--danger);max-width:150px;margin-top:2px" title="${failReason.replace(/"/g, '&quot;')}">${truncate(failReason, 30)}</div>` : ''}</td>
+        <td>${truncate(p.content, 60)}</td>
+        <td>${platforms || '—'}</td>
+        <td>${fmtDate(p.scheduledFor)}</td>
+        <td>${fmtDate(p.createdAt)}</td>
+        <td>
+          ${p.status === 'draft' || p.status === 'scheduled' || p.status === 'failed' ? `<button class="btn btn-sm btn-primary" onclick="publishPost('${p.id}')">${p.status === 'failed' ? 'Retry' : 'Publish'}</button>` : ''}
+          ${p.status !== 'published' ? `<button class="btn btn-sm btn-danger" onclick="deletePost('${p.id}')">Delete</button>` : ''}
+        </td>
+      </tr>`;
+        }
+        html += '</tbody></table></div></div>';
+        el.innerHTML = html;
+      } catch (e) {
+        el.innerHTML = `<div class="card" style="color:var(--danger)">Error: ${e.message}</div>`;
+      }
+    }
+
+    function showCreatePost() {
+      document.getElementById('createPostForm').style.display = 'block';
+      uploadedMediaUrls = [];
+      renderMediaPreviews();
+      document.getElementById('mediaUploadStatus').textContent = '';
+      document.getElementById('mediaUrlInput').value = '';
+      loadAccountOptions();
+    }
+
+    async function loadAccountOptions() {
+      try {
+        const res = await api('/api/accounts?active=true');
+        accounts = res.data?.data || [];
+      } catch (e) {
+        accounts = [];
+      }
+      const activeAccounts = accounts.filter(a => a.isActive);
+      const sel = document.getElementById('newPostAccount');
+      sel.innerHTML = activeAccounts.length ? activeAccounts.map(a =>
+        `<option value="${a.id}" data-platform="${a.platform}">${platformLabel(a.platform)} — ${a.accountName} (@${a.accountUsername})</option>`
+      ).join('') : '<option value="">No accounts — connect one first</option>';
+
+      // Show platform-specific hints
+      sel.addEventListener('change', updatePlatformHint);
+      updatePlatformHint();
+    }
+
+    function updatePlatformHint() {
+      const sel = document.getElementById('newPostAccount');
+      const platform = sel.selectedOptions[0]?.dataset.platform || '';
+      const accountId = sel.value;
+      const igPlatforms = ['instagram', 'instagram_direct', 'instagram_reels', 'instagram_stories'];
+      let hint = document.getElementById('platformHint');
+      if (!hint) {
+        hint = document.createElement('div');
+        hint.id = 'platformHint';
+        hint.style.cssText = 'font-size:11px;margin-top:4px';
+        sel.parentElement.appendChild(hint);
+      }
+      if (igPlatforms.includes(platform)) {
+        hint.innerHTML = '<span style="color:var(--warning,#f59e0b)">📷 Instagram requires at least one image or video URL</span>';
+      } else {
+        hint.textContent = '';
+      }
+
+      // Show/hide platform-specific options
+      const optionsContainer = document.getElementById('platformOptions');
+      const pinterestEl = document.getElementById('pinterestOptions');
+      const tiktokEl = document.getElementById('tiktokOptions');
+      const youtubeEl = document.getElementById('youtubeOptions');
+
+      pinterestEl.style.display = 'none';
+      tiktokEl.style.display = 'none';
+      youtubeEl.style.display = 'none';
+
+      if (platform === 'pinterest' && accountId) {
+        optionsContainer.style.display = 'block';
+        pinterestEl.style.display = 'block';
+        loadPinterestBoards(accountId);
+      } else if (platform === 'tiktok' && accountId) {
+        optionsContainer.style.display = 'block';
+        tiktokEl.style.display = 'block';
+        loadTiktokCreatorInfo(accountId);
+      } else if (platform === 'youtube' && accountId) {
+        optionsContainer.style.display = 'block';
+        youtubeEl.style.display = 'block';
+      } else {
+        optionsContainer.style.display = 'none';
+      }
+    }
+
+    async function loadPinterestBoards(accountId) {
+      const boardSelect = document.getElementById('pinterestBoard');
+      boardSelect.innerHTML = '<option value="">Loading boards...</option>';
+      try {
+        const res = await api(`/api/accounts/${accountId}/pinterest-boards`);
+        const boards = res.data?.data?.boards || res.data?.boards || [];
+        if (boards.length > 0) {
+          boardSelect.innerHTML = boards.map(b =>
+            `<option value="${b.id}">${b.name}</option>`
+          ).join('');
+        } else {
+          boardSelect.innerHTML = '<option value="">No boards found — create one on Pinterest first</option>';
+        }
+      } catch (e) {
+        boardSelect.innerHTML = '<option value="">Failed to load boards</option>';
+        console.error('Pinterest boards error:', e);
+      }
+    }
+
+    async function loadTiktokCreatorInfo(accountId) {
+      const statusEl = document.getElementById('tiktokCreatorStatus');
+      statusEl.textContent = 'Loading creator info...';
+      try {
+        const res = await api(`/api/accounts/${accountId}/tiktok-creator-info`);
+        const info = res.data?.data || res.data || {};
+        const privacyOptions = info.privacy_level_options || info.privacyLevelOptions || ['PUBLIC_TO_EVERYONE', 'SELF_ONLY'];
+        const privacySelect = document.getElementById('tiktokPrivacy');
+        const privacyLabels = {
+          PUBLIC_TO_EVERYONE: 'Public',
+          MUTUAL_FOLLOW_FRIENDS: 'Mutual Follow Friends',
+          FOLLOWER_OF_CREATOR: 'Followers Only',
+          SELF_ONLY: 'Self Only'
+        };
+        privacySelect.innerHTML = privacyOptions.map(opt =>
+          `<option value="${opt}">${privacyLabels[opt] || opt}</option>`
+        ).join('');
+        document.getElementById('tiktokComments').checked = info.comment_disabled !== true;
+        document.getElementById('tiktokDuet').checked = info.duet_disabled !== true;
+        document.getElementById('tiktokStitch').checked = info.stitch_disabled !== true;
+        statusEl.textContent = 'Creator info loaded successfully';
+      } catch (e) {
+        statusEl.textContent = 'Could not load creator info — using defaults';
+        console.error('TikTok creator info error:', e);
+      }
+    }
+
+    document.getElementById('newPostMode').addEventListener('change', (e) => {
+      document.getElementById('scheduleField').style.display = e.target.value === 'schedule' ? 'block' : 'none';
+      document.getElementById('publishWarning').style.display = (e.target.value === 'publish' || e.target.value === 'schedule') ? 'block' : 'none';
+    });
+
+    // ─── Media Upload & URL Handling ───────────────────────────────────
+    let uploadedMediaUrls = [];
+    let isUploading = false;
+
+    // Check if PUBLIC_URL is configured and update the media warning
+    (async function checkPublicUrl() {
+      try {
+        const res = await fetch('/api/config');
+        const config = await res.json();
+        const warningEl = document.getElementById('mediaPublicUrlWarning');
+        if (warningEl && config.publicUrl) {
+          warningEl.style.color = 'var(--success, #16a34a)';
+          warningEl.innerHTML = '<strong>✓ PUBLIC_URL configured:</strong> ' + config.publicUrl +
+            ' — media uploads will be reachable by SchedulifyX servers.';
+        }
+      } catch (_) { /* ignore */ }
+    })();
+
+    function handleFileDrop(e) {
+      e.preventDefault();
+      const zone = document.getElementById('fileDropZone');
+      zone.style.borderColor = 'var(--border)';
+      zone.style.background = 'transparent';
+      if (e.dataTransfer.files.length > 0) {
+        handleFileSelect(e.dataTransfer.files);
+      }
+    }
+
+    async function handleFileSelect(files) {
+      if (!files || files.length === 0) return;
+      const progressEl = document.getElementById('fileUploadProgress');
+      const statusEl = document.getElementById('mediaUploadStatus');
+      const fileArr = Array.from(files);
+
+      if (uploadedMediaUrls.length + fileArr.length > 20) {
+        statusEl.innerHTML = '<span style="color:var(--danger)">Maximum 20 media items per post</span>';
+        return;
+      }
+
+      isUploading = true;
+      for (let i = 0; i < fileArr.length; i++) {
+        const file = fileArr[i];
+        progressEl.textContent = `Uploading ${i + 1}/${fileArr.length}: ${file.name}...`;
+
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+
+          const res = await fetch('/api/upload', { method: 'POST', body: formData });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({ error: 'Upload failed' }));
+            throw new Error(err.error || `HTTP ${res.status}`);
+          }
+          const data = await res.json();
+          // data.url is a full URL (using PUBLIC_URL if set, else localhost)
+          uploadedMediaUrls.push(data.url);
+        } catch (err) {
+          statusEl.innerHTML = `<span style="color:var(--danger)">Failed to upload ${file.name}: ${err.message}</span>`;
+        }
+      }
+
+      progressEl.textContent = '';
+      isUploading = false;
+      statusEl.textContent = uploadedMediaUrls.length ? `${uploadedMediaUrls.length} file(s) ready` : '';
+      renderMediaPreviews();
+      // Reset file input
+      document.getElementById('fileUploadInput').value = '';
+    }
+
+    function addMediaUrl() {
+      const input = document.getElementById('mediaUrlInput');
+      const url = input.value.trim();
+      if (!url) return;
+
+      // Validate URL format
+      try {
+        const parsed = new URL(url);
+        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+          document.getElementById('mediaUploadStatus').innerHTML = '<span style="color:var(--danger)">URL must start with http:// or https://</span>';
+          return;
+        }
+      } catch {
+        document.getElementById('mediaUploadStatus').innerHTML = '<span style="color:var(--danger)">Invalid URL format</span>';
+        return;
+      }
+
+      if (uploadedMediaUrls.length >= 20) {
+        document.getElementById('mediaUploadStatus').innerHTML = '<span style="color:var(--danger)">Maximum 20 media URLs per post</span>';
+        return;
+      }
+
+      uploadedMediaUrls.push(url);
+      input.value = '';
+      document.getElementById('mediaUploadStatus').textContent = `${uploadedMediaUrls.length} media URL(s) added`;
+      renderMediaPreviews();
+    }
+
+    function renderMediaPreviews() {
+      const el = document.getElementById('mediaPreviewList');
+      if (uploadedMediaUrls.length === 0) { el.innerHTML = ''; return; }
+      el.innerHTML = uploadedMediaUrls.map((url, i) => {
+        const isVideo = /\.(mp4|mov|avi|webm)($|\?)/i.test(url);
+        return `<div style="position:relative;display:flex;flex-direction:column;align-items:center;max-width:120px">
+      <div style="position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:1px solid var(--border);background:var(--bg)">
+        ${isVideo
+            ? `<video src="${url}" style="width:100%;height:100%;object-fit:cover" muted onerror="this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:100%;font-size:24px\\'>🎬</div>'"></video>`
+            : `<img src="${url}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:100%;font-size:24px\\'>🖼️</div>'" />`}
+        <button onclick="removeMedia(${i})" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.7);color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button>
+      </div>
+      <div style="font-size:10px;color:var(--text3);margin-top:4px;word-break:break-all;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${url}">${url.split('/').pop()?.substring(0, 20) || 'media'}</div>
+    </div>`;
+      }).join('');
+    }
+
+    function removeMedia(idx) {
+      uploadedMediaUrls.splice(idx, 1);
+      renderMediaPreviews();
+      document.getElementById('mediaUploadStatus').textContent = uploadedMediaUrls.length ? `${uploadedMediaUrls.length} file(s) ready` : '';
+    }
+
+    async function createPost() {
+      const content = document.getElementById('newPostContent').value;
+      const accountEl = document.getElementById('newPostAccount');
+      const accountId = accountEl.value;
+      const platform = accountEl.selectedOptions[0]?.dataset.platform || 'facebook';
+      const mode = document.getElementById('newPostMode').value;
+      // URLs from /api/upload already include PUBLIC_URL base (or localhost fallback).
+      // Relative paths (from manual URL input starting with /) get the origin prefix.
+      const mediaUrls = uploadedMediaUrls.length > 0
+        ? uploadedMediaUrls.map(u => u.startsWith('/') ? `${window.location.origin}${u}` : u)
+        : undefined;
+
+      // Platform-specific validation
+      const igPlatforms = ['instagram', 'instagram_direct', 'instagram_reels', 'instagram_stories'];
+      if (igPlatforms.includes(platform) && (!mediaUrls || mediaUrls.length === 0)) {
+        document.getElementById('createPostResult').innerHTML = `<div class="card" style="color:var(--danger);padding:12px">
+      ⚠️ <strong>Instagram requires at least one image or video.</strong> Add a media URL above before creating the post.
+      <br><span style="font-size:12px;color:var(--text3)">Instagram API does not support text-only posts.</span></div>`;
+        return;
+      }
+
+      // Pinterest board validation
+      if (platform === 'pinterest') {
+        const boardId = document.getElementById('pinterestBoard').value;
+        if (!boardId) {
+          document.getElementById('createPostResult').innerHTML = `<div class="card" style="color:var(--danger);padding:12px">
+      ⚠️ <strong>Pinterest requires selecting a board.</strong> Choose a board from the dropdown above.</div>`;
+          return;
+        }
+      }
+
+      let scheduledFor;
+      if (mode === 'schedule') {
+        const dt = document.getElementById('newPostSchedule').value;
+        if (dt) scheduledFor = new Date(dt).toISOString();
+      }
+
+      // Build platform-specific settings
+      let platformSettings = undefined;
+      if (platform === 'pinterest') {
+        platformSettings = { board_id: document.getElementById('pinterestBoard').value };
+      } else if (platform === 'tiktok') {
+        platformSettings = {
+          privacy_level: document.getElementById('tiktokPrivacy').value,
+          disable_comment: !document.getElementById('tiktokComments').checked,
+          disable_duet: !document.getElementById('tiktokDuet').checked,
+          disable_stitch: !document.getElementById('tiktokStitch').checked,
+        };
+      } else if (platform === 'youtube') {
+        const title = document.getElementById('youtubeTitle').value;
+        const privacy = document.getElementById('youtubePrivacy').value;
+        platformSettings = {};
+        if (title) platformSettings.title = title;
+        if (privacy) platformSettings.privacy = privacy;
+      }
+
+      const platformEntry = { accountId, platform };
+      if (platformSettings) platformEntry.platformSettings = platformSettings;
+
+      const body = {
+        content,
+        platforms: [platformEntry],
+        mode,
+        ...(scheduledFor && { scheduledFor }),
+        ...(mediaUrls && { mediaUrls }),
+      };
+
+      const el = document.getElementById('createPostResult');
+      el.innerHTML = '<div class="loading"><div class="spinner"></div> Creating...</div>';
+
+      try {
+        const res = await apiPost('/api/posts', body);
+        el.innerHTML = `<div class="response-viewer">
+      <div class="response-header"><span class="response-status ${res.status < 300 ? 'ok' : 'error'}">HTTP ${res.status}</span></div>
+      <pre class="response-body">${JSON.stringify(res.data, null, 2)}</pre></div>`;
+        if (res.status < 300) {
+          uploadedMediaUrls = [];
+          renderMediaPreviews();
+          document.getElementById('mediaUploadStatus').textContent = '';
+          document.getElementById('mediaUrlInput').value = '';
+          document.getElementById('fileUploadProgress').textContent = '';
+          loadPosts();
+        }
+      } catch (e) {
+        el.innerHTML = `<p style="color:var(--danger)">Error: ${e.message}</p>`;
+      }
+    }
+
+    async function publishPost(id) {
+      if (!confirm('Publish this post now?')) return;
+      try {
+        const res = await apiPost(`/api/posts/${id}/publish`);
+        alert(res.status < 300 ? 'Post queued for publishing!' : 'Error: ' + JSON.stringify(res.data));
+        loadPosts();
+      } catch (e) {
+        alert('Error: ' + e.message);
+      }
+    }
+
+    async function deletePost(id) {
+      if (!confirm('Delete this post?')) return;
+      try {
+        await apiDelete(`/api/posts/${id}`);
+        loadPosts();
+      } catch (e) {
+        alert('Error: ' + e.message);
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // ACCOUNTS + CONNECT FLOW (Real OAuth via SchedulifyX API)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    function showConnectAccount() {
+      const panel = document.getElementById('connectAccountPanel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+      document.getElementById('connectResult').innerHTML = '';
+      // Reset platform option states
+      document.querySelectorAll('.platform-option').forEach(el => {
+        el.classList.remove('connecting', 'connected');
+      });
+      // Mark already-connected platforms
+      for (const a of accounts) {
+        const platform = a.platform;
+        const option = document.querySelector(`.platform-option[data-platform="${platform}"]`);
+        if (option) option.classList.add('connected');
+      }
+    }
+
+    async function connectPlatform(platform) {
+      const platformNames = {
+        facebook: 'Facebook', instagram: 'Instagram (via Facebook)', instagram_direct: 'Instagram Direct',
+        twitter: 'X / Twitter', linkedin: 'LinkedIn', tiktok: 'TikTok', youtube: 'YouTube',
+        pinterest: 'Pinterest', threads: 'Threads', bluesky: 'Bluesky', mastodon: 'Mastodon'
+      };
+      const el = document.getElementById('connectResult');
+
+      // Check if already connected
+      const already = accounts.find(a => a.platform === platform);
+      if (already) {
+        el.innerHTML = `<div class="card" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);color:var(--warning)">
+      ⚠️ ${platformNames[platform] || platform} is already connected.</div>`;
+        return;
+      }
+
+      // Handle Bluesky (direct login — needs credentials)
+      if (platform === 'bluesky') {
+        showBlueskyLogin();
+        return;
+      }
+
+      // Handle Mastodon (direct login — needs instance URL)
+      if (platform === 'mastodon') {
+        showMastodonLogin();
+        return;
+      }
+
+      // For all other platforms: initiate real OAuth flow
+      const option = document.querySelector(`.platform-option[data-platform="${platform}"]`);
+      if (option) option.classList.add('connecting');
+      el.innerHTML = `<div class="loading"><div class="spinner"></div> Redirecting to ${platformNames[platform] || platform} for authorization...</div>`;
+
+      try {
+        const res = await api(`/api/connect/${platform}`);
+        if (res.data?.data?.url) {
+          // Redirect to the real OAuth provider
+          window.location.href = res.data.data.url;
+        } else {
+          throw new Error(res.data?.error?.message || 'Failed to get OAuth URL');
+        }
+      } catch (e) {
+        if (option) option.classList.remove('connecting');
+        el.innerHTML = `<div class="card" style="background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:var(--danger)">
+      ❌ Failed to connect ${platformNames[platform] || platform}: ${e.message}</div>`;
+      }
+    }
+
+    function showBlueskyLogin() {
+      const el = document.getElementById('connectResult');
+      el.innerHTML = `
+    <div class="card" style="margin-top:8px">
+      <div class="card-title">🦋 Connect Bluesky</div>
+      <p style="color:var(--text2);font-size:13px;margin-bottom:12px">Enter your Bluesky handle and an <a href="https://bsky.app/settings/app-passwords" target="_blank" style="color:var(--primary)">App Password</a> (not your main password).</p>
+      <div class="form-group">
+        <label>Handle</label>
+        <input type="text" id="blueskyHandle" placeholder="yourname.bsky.social" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>App Password</label>
+        <input type="password" id="blueskyAppPassword" placeholder="xxxx-xxxx-xxxx-xxxx" class="form-control">
+      </div>
+      <button class="btn btn-primary" onclick="submitBlueskyLogin()">Connect Bluesky</button>
+    </div>`;
+    }
+
+    async function submitBlueskyLogin() {
+      const handle = document.getElementById('blueskyHandle').value.trim();
+      const appPassword = document.getElementById('blueskyAppPassword').value.trim();
+      if (!handle || !appPassword) return alert('Please enter both handle and app password');
+
+      const el = document.getElementById('connectResult');
+      el.innerHTML = '<div class="loading"><div class="spinner"></div> Connecting to Bluesky...</div>';
+
+      try {
+        const res = await fetch('/api/connect/bluesky', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + authToken, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ handle, appPassword }),
+        });
+        const data = await res.json();
+        if (data.data) {
+          el.innerHTML = `<div class="card" style="background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.3);color:var(--success)">
+        ✅ Bluesky connected successfully!</div>`;
+          loadAccounts();
+        } else {
+          throw new Error(data.error?.message || data.error || 'Connection failed');
+        }
+      } catch (e) {
+        el.innerHTML = `<div class="card" style="background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:var(--danger)">
+      ❌ Bluesky connection failed: ${e.message}</div>`;
+      }
+    }
+
+    function showMastodonLogin() {
+      const el = document.getElementById('connectResult');
+      el.innerHTML = `
+    <div class="card" style="margin-top:8px">
+      <div class="card-title" style="display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" width="20" height="20" fill="#6364FF"><path d="M23.268 5.313c-.35-2.578-2.617-4.61-5.304-5.004C17.51.242 15.792 0 11.813 0h-.03c-3.98 0-4.835.242-5.288.309C3.882.692 1.496 2.518.917 5.127.64 6.412.61 7.837.661 9.143c.074 1.874.088 3.745.26 5.611.118 1.24.325 2.47.62 3.68.55 2.237 2.777 4.098 4.96 4.857 2.336.792 4.849.923 7.256.38.265-.061.527-.132.786-.213.585-.184 1.27-.39 1.774-.753a.057.057 0 00.023-.043v-1.809a.052.052 0 00-.02-.041.053.053 0 00-.046-.01 20.282 20.282 0 01-4.709.547c-2.73 0-3.463-1.284-3.674-1.818a5.593 5.593 0 01-.319-1.433.053.053 0 01.066-.054 19.648 19.648 0 004.636.546h.357c1.555 0 3.122-.046 4.656-.247 1.894-.25 3.547-1.022 3.723-5.316.007-.174.018-1.822.018-2 0-.611.181-4.356-.065-5.89zM19.903 13h-2.58V7.876c0-1.26-.547-1.898-1.644-1.898-1.213 0-1.82.756-1.82 2.252v2.806h-2.565V8.23c0-1.496-.607-2.252-1.82-2.252-1.097 0-1.644.638-1.644 1.898V13H5.25V7.695c0-1.26.329-2.264.988-3.012.68-.748 1.568-1.132 2.668-1.132 1.273 0 2.238.487 2.87 1.46l.618 1.028.618-1.028c.632-.973 1.597-1.46 2.87-1.46 1.1 0 1.988.384 2.668 1.132.66.748.988 1.752.988 3.012V13z"/></svg> Connect Mastodon</div>
+      <p style="color:var(--text2);font-size:13px;margin-bottom:12px">Enter your Mastodon instance URL and access token.</p>
+      <div class="form-group">
+        <label>Instance URL</label>
+        <input type="text" id="mastodonInstance" placeholder="https://mastodon.social" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>Access Token</label>
+        <input type="password" id="mastodonToken" placeholder="Your Mastodon access token" class="form-control">
+      </div>
+      <button class="btn btn-primary" onclick="submitMastodonLogin()">Connect Mastodon</button>
+    </div>`;
+    }
+
+    async function submitMastodonLogin() {
+      const instanceUrl = document.getElementById('mastodonInstance').value.trim();
+      const accessToken = document.getElementById('mastodonToken').value.trim();
+      if (!instanceUrl || !accessToken) return alert('Please enter instance URL and access token');
+
+      const el = document.getElementById('connectResult');
+      el.innerHTML = '<div class="loading"><div class="spinner"></div> Connecting to Mastodon...</div>';
+
+      try {
+        const res = await fetch('/api/connect/mastodon', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + authToken, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ instanceUrl, accessToken }),
+        });
+        const data = await res.json();
+        if (data.data) {
+          el.innerHTML = `<div class="card" style="background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.3);color:var(--success)">
+        ✅ Mastodon connected successfully!</div>`;
+          loadAccounts();
+        } else {
+          throw new Error(data.error?.message || data.error || 'Connection failed');
+        }
+      } catch (e) {
+        el.innerHTML = `<div class="card" style="background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:var(--danger)">
+      ❌ Mastodon connection failed: ${e.message}</div>`;
+      }
+    }
+
+    async function disconnectAccount(accountId) {
+      if (!confirm('Disconnect this account? This will remove the connection.')) return;
+      try {
+        await fetch(`/api/accounts/${accountId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + authToken },
+        });
+        loadAccounts();
+      } catch (e) {
+        alert('Error disconnecting: ' + e.message);
+      }
+    }
+
+    async function loadAccounts() {
+      const el = document.getElementById('accountsTable');
+      el.innerHTML = '<div class="loading"><div class="spinner"></div> Loading accounts...</div>';
+
+      // If Tier 1, can't list accounts via REST API — show connect-only UI
+      if (!hasTier2Access()) {
+        accounts = [];
+        el.innerHTML = `<div class="empty">
+          <div class="empty-icon">🔗</div>
+          <strong>Account listing requires Tier 2+</strong><br>
+          <span style="font-size:14px;color:var(--text3)">Your API key is Tier 1 (Embed). You can connect accounts via OAuth using the buttons above,<br>
+          but listing account data via REST API requires a Tier 2 (Publishing) key or higher.</span>
+        </div>`;
+        updateAccountDropdown(accounts);
+        return;
+      }
+
+      try {
+        const res = await api('/api/accounts?limit=100');
+        accounts = res.data?.data || [];
+      } catch (e) {
+        accounts = [];
+      }
+
+      if (accounts.length === 0) {
+        el.innerHTML = '<div class="empty"><div class="empty-icon">🔗</div>No accounts connected yet.<br><span style="font-size:14px">Click <strong>Connect Account</strong> above to link your social media accounts.</span></div>';
+        updateAccountDropdown(accounts);
+        return;
+      }
+
+      let html = '<div class="card-grid">';
+      for (const a of accounts) {
+        html += `<div class="card" style="padding:16px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+        ${a.avatarUrl ? `<img src="${a.avatarUrl}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">` : '<div style="width:40px;height:40px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:20px">' + (platformIcon(a.platform).split(' ')[0]) + '</div>'}
+        <div style="flex:1">
+          <div style="font-weight:600">${a.accountName || '—'}</div>
+          <div style="color:var(--text2);font-size:12px">@${a.accountUsername || '—'}</div>
+        </div>
+        <button class="btn btn-sm btn-danger" onclick="disconnectAccount('${a.id}')" title="Disconnect">✕</button>
+      </div>
+      <div style="font-size:12px;color:var(--text2)">
+        ${platformIcon(a.platform)}<br>
+        Followers: <strong>${(a.followersCount || 0).toLocaleString()}</strong><br>
+        Status: ${a.isActive ? '<span style="color:var(--success)">● Active</span>' : '<span style="color:var(--danger)">● Inactive</span>'}
+      </div>
+    </div>`;
+      }
+      html += '</div>';
+      el.innerHTML = html;
+
+      // Also update the post creation account dropdown
+      updateAccountDropdown(accounts);
+    }
+
+    function platformLabel(p) {
+      const labels = {
+        facebook: '📘 Facebook', instagram: '📷 Instagram', instagram_business: '📷 Instagram',
+        instagram_direct: '📷 Instagram', x: '𝕏 X', twitter: '𝕏 X',
+        linkedin: '🔗 LinkedIn', linkedin_business: '🔗 LinkedIn', tiktok: '🎵 TikTok',
+        youtube: '▶️ YouTube', pinterest: '📌 Pinterest', threads: '🧵 Threads',
+        bluesky: '🦋 Bluesky', mastodon: '🐘 Mastodon',
+      };
+      return labels[p] || p || 'unknown';
+    }
+
+    function updateAccountDropdown(accts) {
+      const sel = document.getElementById('newPostAccount');
+      if (!sel) return;
+      const active = accts.filter(a => a.isActive);
+      sel.innerHTML = active.length ? active.map(a =>
+        `<option value="${a.id}" data-platform="${a.platform}">${platformLabel(a.platform)} — ${a.accountName} (@${a.accountUsername})</option>`
+      ).join('') : '<option value="">No accounts — connect one first</option>';
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // ANALYTICS
+    // ═══════════════════════════════════════════════════════════════════════
+    async function loadAnalyticsOverview() {
+      const el = document.getElementById('analyticsOverview');
+      el.innerHTML = '<div class="loading"><div class="spinner"></div> Loading...</div>';
+      try {
+        const res = await api('/api/analytics/overview');
+        const d = res.data?.data || {};
+
+        el.innerHTML = `
+      <div class="card-grid">
+        <div class="stat-card"><div class="stat-value">${d.totalPosts || 0}</div><div class="stat-label">Total Posts</div></div>
+        <div class="stat-card"><div class="stat-value" style="color:var(--success)">${d.publishedPosts || 0}</div><div class="stat-label">Published</div></div>
+        <div class="stat-card"><div class="stat-value" style="color:var(--primary)">${d.scheduledPosts || 0}</div><div class="stat-label">Scheduled</div></div>
+        <div class="stat-card"><div class="stat-value">${d.connectedAccounts || 0}</div><div class="stat-label">Accounts</div></div>
+        <div class="stat-card"><div class="stat-value">${(d.totalFollowers || 0).toLocaleString()}</div><div class="stat-label">Total Followers</div></div>
+      </div>
+      ${d.accounts?.length ? '<div class="card" style="margin-top:16px"><div class="card-title">Account Breakdown</div><table><thead><tr><th>Platform</th><th>Name</th><th>Followers</th></tr></thead><tbody>' + d.accounts.map(a => `<tr><td>${platformIcon(a.platform)}</td><td>${a.name}</td><td>${(a.followers || 0).toLocaleString()}</td></tr>`).join('') + '</tbody></table></div>' : ''}`;
+      } catch (e) {
+        el.innerHTML = `<div class="card" style="color:var(--danger)">Error: ${e.message}</div>`;
+      }
+    }
+
+    async function loadPostAnalytics() {
+      const el = document.getElementById('postAnalytics');
+      el.innerHTML = '<div class="loading"><div class="spinner"></div> Loading post analytics...</div>';
+      try {
+        const res = await api('/api/analytics/posts?sortBy=engagement&limit=10');
+        const apiStatus = res.status || 200;
+        const items = res.data?.data?.analytics || [];
+        const pagination = res.data?.data?.pagination || {};
+
+        let html = '<div class="card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center">📈 Post Performance';
+        html += `<span style="font-size:12px;font-weight:400;color:var(--text3)">API: GET /analytics/posts — ${pagination.total || 0} published posts</span></div>`;
+
+        if (apiStatus >= 400) {
+          html += `<div style="color:var(--danger);padding:12px">⚠️ API Error ${apiStatus}: ${res.data?.error?.message || 'Unknown error'}</div>`;
+        } else if (items.length === 0) {
+          html += `<div class="empty" style="padding:20px"><div class="empty-icon">📊</div>No published post analytics yet.<br><span style="font-size:13px;color:var(--text3)">Publish posts through the API to see per-post engagement metrics here.</span></div>`;
+        } else {
+          html += '<div class="table-wrap"><table><thead><tr><th>Platform</th><th>Content</th><th>Impressions</th><th>Reach</th><th>Likes</th><th>Comments</th><th>Shares</th><th>Clicks</th><th>Engagement</th></tr></thead><tbody>';
+          for (const p of items) {
+            html += `<tr>
+          <td>${platformIcon(p.platform)}</td>
+          <td title="${(p.content || '').replace(/"/g, '&quot;')}">${truncate(p.content, 40)}</td>
+          <td>${(p.impressions || 0).toLocaleString()}</td>
+          <td>${(p.reach || 0).toLocaleString()}</td>
+          <td>${p.likes || 0}</td>
+          <td>${p.comments || 0}</td>
+          <td>${p.shares || 0}</td>
+          <td>${p.clicks || 0}</td>
+          <td>${(p.engagementRate || 0).toFixed(2)}%</td>
+        </tr>`;
+          }
+          html += '</tbody></table></div>';
+        }
+
+        // Show raw API response for developer reference
+        html += `<details style="margin-top:12px"><summary style="cursor:pointer;font-size:12px;color:var(--primary)">View raw API response</summary>
+      <pre style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-top:8px;font-size:11px;max-height:300px;overflow:auto">${JSON.stringify(res.data, null, 2)}</pre></details>`;
+        html += '</div>';
+        el.innerHTML = html;
+      } catch (e) {
+        el.innerHTML = `<div class="card" style="color:var(--danger)">Error loading post analytics: ${e.message}</div>`;
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // COMMENTS
+    // ═══════════════════════════════════════════════════════════════════════
+    async function loadComments() {
+      const el = document.getElementById('commentsTable');
+      el.innerHTML = '<div class="loading"><div class="spinner"></div> Loading comments...</div>';
+      try {
+        const res = await api('/api/comments?limit=20');
+
+        // Check if API returned an error (e.g. 403 addon not active)
+        const errorHtml = renderApiError(res, 'Comments');
+        if (errorHtml) { el.innerHTML = errorHtml; return; }
+
+        const comments = res.data?.data || [];
+        const pagination = res.data?.pagination || {};
+
+        if (comments.length === 0) {
+          el.innerHTML = `<div class="card"><div class="empty" style="padding:20px"><div class="empty-icon">💬</div>No comments found for your connected accounts.<br><span style="font-size:13px;color:var(--text3)">Comments are synced from social platforms when posts receive engagement.<br>Make sure you have connected accounts with published posts.</span></div>
+        <details style="margin-top:12px;padding:0 16px 16px"><summary style="cursor:pointer;font-size:12px;color:var(--primary)">View raw API response</summary>
+        <pre style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-top:8px;font-size:11px;max-height:200px;overflow:auto">${JSON.stringify(res.data, null, 2)}</pre></details></div>`;
+          return;
+        }
+
+        let html = `<div class="card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center">💬 Comments <span style="font-size:12px;font-weight:400;color:var(--text3)">${pagination.total || comments.length} total</span></div>`;
+        html += '<div class="table-wrap"><table><thead><tr><th>Platform</th><th>Author</th><th>Message</th><th>Sentiment</th><th>Likes</th><th>Replies</th><th>Date</th><th>Actions</th></tr></thead><tbody>';
+        for (const c of comments) {
+          html += `<tr>
+        <td>${platformIcon(c.platform)}</td>
+        <td><strong>${c.authorName || '—'}</strong><br><span style="color:var(--text3);font-size:11px">@${c.authorUsername || '—'}</span></td>
+        <td>${truncate(c.message, 50)}</td>
+        <td>${c.sentiment ? badge(c.sentiment) : '—'}</td>
+        <td>${c.likeCount || 0}</td>
+        <td>${c.replyCount || 0}</td>
+        <td>${fmtDate(c.platformCreatedAt)}</td>
+        <td><button class="btn btn-sm" onclick="replyToComment('${c.id}')">Reply</button></td>
+      </tr>`;
+        }
+        html += '</tbody></table></div>';
+
+        // Show raw API response for developer reference
+        html += `<details style="margin-top:12px"><summary style="cursor:pointer;font-size:12px;color:var(--primary)">View raw API response</summary>
+      <pre style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-top:8px;font-size:11px;max-height:300px;overflow:auto">${JSON.stringify(res.data, null, 2)}</pre></details>`;
+        html += '</div>';
+        el.innerHTML = html;
+      } catch (e) {
+        el.innerHTML = `<div class="card" style="color:var(--danger)">Unable to load comments: ${e.message}</div>`;
+      }
+    }
+
+    async function loadCommentStats() {
+      const el = document.getElementById('commentStats');
+      try {
+        const res = await api('/api/comments/stats');
+        const errorHtml = renderApiError(res, 'Comments');
+        if (errorHtml) { el.innerHTML = errorHtml; return; }
+        const d = res.data?.data || {};
+        el.innerHTML = `<div class="card-grid" style="margin-bottom:20px">
+      <div class="stat-card"><div class="stat-value">${d.total || 0}</div><div class="stat-label">Total Comments</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:var(--success)">${d.bySentiment?.positive || 0}</div><div class="stat-label">Positive</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:var(--danger)">${d.bySentiment?.negative || 0}</div><div class="stat-label">Negative</div></div>
+      <div class="stat-card"><div class="stat-value">${d.replied || 0}</div><div class="stat-label">Replied</div></div>
+    </div>`;
+      } catch (e) {
+        el.innerHTML = `<p style="color:var(--danger)">Error: ${e.message}</p>`;
+      }
+    }
+
+    async function replyToComment(commentId) {
+      const message = prompt('Enter your reply:');
+      if (!message) return;
+      try {
+        const res = await apiPost(`/api/comments/${commentId}/reply`, { message });
+        alert(res.status < 300 ? 'Reply sent!' : 'Error: ' + JSON.stringify(res.data));
+        loadComments();
+      } catch (e) {
+        alert('Error: ' + e.message);
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // ENGAGEMENT SYNC
+    // ═══════════════════════════════════════════════════════════════════════
+    async function syncComments() {
+      const btn = document.getElementById('syncCommentsBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Syncing comments...';
+      try {
+        const res = await apiPost('/api/comments/sync', {});
+        const d = res.data?.data || {};
+        if (res.status >= 400) {
+          alert('Sync error: ' + (res.data?.error?.message || JSON.stringify(res.data)));
+        } else {
+          alert(`Comments synced! ${d.totalSynced || 0} new comments from ${d.accountsSynced || 0} account(s).`);
+          loadComments();
+          loadCommentStats();
+        }
+      } catch (e) {
+        alert('Sync failed: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '⬇️ Sync from Platforms';
+      }
+    }
+
+    async function syncInbox() {
+      const btn = document.getElementById('syncInboxBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Syncing messages...';
+      try {
+        const res = await apiPost('/api/inbox/sync', {});
+        const d = res.data?.data || {};
+        if (res.status >= 400) {
+          alert('Sync error: ' + (res.data?.error?.message || JSON.stringify(res.data)));
+        } else {
+          alert(`Inbox synced! ${d.totalSynced || 0} new messages from ${d.accountsSynced || 0} account(s).`);
+          loadConversations();
+          loadInboxStats();
+        }
+      } catch (e) {
+        alert('Sync failed: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '⬇️ Sync from Platforms';
+      }
+    }
+
+    async function syncMentions() {
+      const btn = document.getElementById('syncMentionsBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Syncing mentions...';
+      try {
+        const res = await apiPost('/api/mentions/sync', {});
+        const d = res.data?.data || {};
+        if (res.status >= 400) {
+          alert('Sync error: ' + (res.data?.error?.message || JSON.stringify(res.data)));
+        } else {
+          alert(`Mentions synced! ${d.totalSynced || 0} new mentions from ${d.accountsSynced || 0} account(s).`);
+          loadMentions();
+          loadMentionStats();
+        }
+      } catch (e) {
+        alert('Sync failed: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '⬇️ Sync from Platforms';
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // INBOX
+    // ═══════════════════════════════════════════════════════════════════════
+    async function loadConversations() {
+      const el = document.getElementById('conversationsList');
+      el.innerHTML = '<div class="loading"><div class="spinner"></div> Loading...</div>';
+      try {
+        const res = await api('/api/inbox/conversations?limit=20');
+
+        // Check if API returned an error (e.g. 403 addon not active)
+        const errorHtml = renderApiError(res, 'Inbox/Messages');
+        if (errorHtml) { el.innerHTML = errorHtml; return; }
+
+        const convs = res.data?.data || [];
+
+        if (convs.length === 0) {
+          el.innerHTML = '<div class="empty"><div class="empty-icon">📨</div>No conversations yet. Messages will appear here once you receive DMs.</div>';
+          return;
+        }
+
+        let html = '';
+        for (const c of convs) {
+          const safeName = (c.participantName || 'Unknown').replace(/'/g, '').replace(/"/g, '');
+          const safeUser = (c.participantUsername || '').replace(/'/g, '').replace(/"/g, '');
+          html += `<div class="card" style="padding:12px;cursor:pointer;margin-bottom:8px" onclick="loadMessages('${c.id}', '${safeName}', '${safeUser}')">
+        <div style="display:flex;justify-content:space-between;align-items:start">
+          <div>
+            <strong>${c.participantName || 'Unknown'}</strong>
+            ${c.participantUsername ? `<span style="color:var(--text3);font-size:12px;margin-left:6px">@${c.participantUsername}</span>` : ''}
+          </div>
+          ${c.unreadCount > 0 ? `<span class="badge badge-inbound">${c.unreadCount} new</span>` : ''}
+        </div>
+        <div style="font-size:12px;color:var(--text2);margin-top:4px">${platformIcon(c.platform)} | ${fmtDate(c.lastMessageAt)}</div>
+      </div>`;
+        }
+        el.innerHTML = html;
+      } catch (e) {
+        el.innerHTML = `<div class="card" style="color:var(--danger)">Error: ${e.message}</div>`;
+      }
+    }
+
+    async function loadMessages(convId, name, username) {
+      currentConvId = convId;
+      const container = document.getElementById('conversationMessages');
+      container.style.display = 'block';
+      const headerHtml = (name || 'Unknown') + (username ? ` <span style="color:var(--text3);font-size:13px">@${username}</span>` : '');
+      document.getElementById('convTitle').innerHTML = headerHtml;
+      const el = document.getElementById('msgList');
+      el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+      try {
+        const res = await api(`/api/inbox/conversations/${convId}/messages?limit=50`);
+        const msgs = (res.data?.data || []).reverse();
+
+        el.innerHTML = msgs.map(m => {
+          const isOutbound = m.direction === 'outbound';
+          const label = isOutbound ? '<strong style="color:var(--primary)">You</strong>' : `<strong>${m.senderName || name || 'Them'}</strong>`;
+          return `<div class="msg-bubble msg-${m.direction}">
+        <div style="font-size:11px;margin-bottom:4px">${label}</div>
+        ${m.message || '<em>Media message</em>'}
+        <div class="msg-meta">${fmtDate(m.platformCreatedAt)}</div>
+      </div>`;
+        }).join('') || '<div class="empty">No messages</div>';
+        el.scrollTop = el.scrollHeight;
+      } catch (e) {
+        el.innerHTML = `<p style="color:var(--danger)">Error: ${e.message}</p>`;
+      }
+    }
+
+    async function sendInboxReply() {
+      if (!currentConvId) return alert('Select a conversation first');
+      const input = document.getElementById('replyInput');
+      const message = input.value.trim();
+      if (!message) return;
+      try {
+        const res = await apiPost(`/api/inbox/conversations/${currentConvId}/reply`, { message });
+        if (res.status < 300) {
+          input.value = '';
+          loadMessages(currentConvId, document.getElementById('convTitle').textContent);
+        } else {
+          alert('Error: ' + JSON.stringify(res.data));
+        }
+      } catch (e) {
+        alert('Error: ' + e.message);
+      }
+    }
+
+    async function loadInboxStats() {
+      const el = document.getElementById('inboxStats');
+      try {
+        const res = await api('/api/inbox/stats');
+        const errorHtml = renderApiError(res, 'Inbox/Messages');
+        if (errorHtml) { el.innerHTML = errorHtml; return; }
+        const d = res.data?.data || {};
+        el.innerHTML = `<div class="card-grid" style="margin-bottom:20px">
+      <div class="stat-card"><div class="stat-value">${d.conversations?.total || 0}</div><div class="stat-label">Conversations</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:var(--warning)">${d.conversations?.unread || 0}</div><div class="stat-label">Unread</div></div>
+      <div class="stat-card"><div class="stat-value">${d.messages?.total || 0}</div><div class="stat-label">Total Messages</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:var(--success)">${d.messages?.responseRate || 0}%</div><div class="stat-label">Response Rate</div></div>
+    </div>`;
+      } catch (e) {
+        el.innerHTML = `<p style="color:var(--danger)">Error: ${e.message}</p>`;
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // MENTIONS
+    // ═══════════════════════════════════════════════════════════════════════
+    async function loadMentions() {
+      const el = document.getElementById('mentionsTable');
+      el.innerHTML = '<div class="loading"><div class="spinner"></div> Loading...</div>';
+      try {
+        const res = await api('/api/mentions?limit=20');
+
+        // Check if API returned an error (e.g. 403 addon not active)
+        const errorHtml = renderApiError(res, 'Mentions');
+        if (errorHtml) { el.innerHTML = errorHtml; return; }
+
+        const mentions = res.data?.data || [];
+
+        if (mentions.length === 0) {
+          el.innerHTML = '<div class="empty"><div class="empty-icon">@</div>No mentions found yet. Mentions will appear when people tag your accounts.</div>';
+          return;
+        }
+
+        let html = '<div class="card"><div class="table-wrap"><table><thead><tr><th>Platform</th><th>Type</th><th>Author</th><th>Content</th><th>Likes</th><th>Status</th><th>Date</th></tr></thead><tbody>';
+        for (const m of mentions) {
+          html += `<tr>
+        <td>${platformIcon(m.platform)}</td>
+        <td><span class="badge" style="background:rgba(139,92,246,0.15);color:var(--purple)">${m.mentionType || '—'}</span></td>
+        <td><strong>${m.authorName || '—'}</strong><br><span style="color:var(--text3);font-size:11px">@${m.authorUsername || '—'}</span></td>
+        <td>${truncate(m.content, 50)}</td>
+        <td>${m.likeCount || 0}</td>
+        <td>${badge(m.status || 'new')}</td>
+        <td>${fmtDate(m.createdAt)}</td>
+      </tr>`;
+        }
+        html += '</tbody></table></div></div>';
+        el.innerHTML = html;
+      } catch (e) {
+        el.innerHTML = `<div class="card" style="color:var(--danger)">Unable to load mentions. Please try again later.</div>`;
+      }
+    }
+
+    async function loadMentionStats() {
+      const el = document.getElementById('mentionStats');
+      try {
+        const res = await api('/api/mentions/stats');
+        const errorHtml = renderApiError(res, 'Mentions');
+        if (errorHtml) { el.innerHTML = errorHtml; return; }
+        const d = res.data?.data || {};
+        el.innerHTML = `<div class="card-grid" style="margin-bottom:20px">
+      <div class="stat-card"><div class="stat-value">${d.total || 0}</div><div class="stat-label">Total Mentions</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:var(--warning)">${d.unread || 0}</div><div class="stat-label">New / Unread</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:var(--success)">${d.responded || 0}</div><div class="stat-label">Responded</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:var(--purple)">${d.ugcSaved || 0}</div><div class="stat-label">UGC Saved</div></div>
+    </div>`;
+      } catch (e) {
+        el.innerHTML = `<p style="color:var(--danger)">Error: ${e.message}</p>`;
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // INIT
+    // ═══════════════════════════════════════════════════════════════════════
+    (async function init() {
+      if (authToken && currentTenant) {
+        // Verify session is still valid on server
+        try {
+          const res = await fetch('/api/auth/me', { headers: authHeaders() });
+          if (res.ok) {
+            showApp();
+          } else {
+            // Session expired on server — clear local state
+            localStorage.removeItem('schedulifyx_token');
+            localStorage.removeItem('schedulifyx_tenant');
+            authToken = null;
+            currentTenant = null;
+          }
+        } catch (e) {
+          // Server unreachable — show app anyway (will fail on API calls)
+          showApp();
+        }
+      }
+      // If no token, auth page is already visible
+    })();
+  </script>
+</body>
+
+</html>
